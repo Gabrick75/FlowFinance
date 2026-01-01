@@ -96,7 +96,14 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable(Screen.Dashboard.route) {
                                 DashboardScreen(onSeeAllClick = {
-                                    navController.navigate(Screen.Transactions.route)
+                                    // Navigate to Transactions tab behavior instead of pushing to stack
+                                    navController.navigate(Screen.Transactions.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 })
                             }
                             composable(Screen.Transactions.route) {
