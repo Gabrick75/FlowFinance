@@ -2,7 +2,6 @@ package com.flowfinance.app.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
@@ -40,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.flowfinance.app.R
@@ -101,14 +100,15 @@ fun SettingsScreen() {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App Icon Placeholder
+            // App Icon
+            // Using a vector icon instead of mipmap resource to avoid AdaptiveIconDrawable crash in Compose
             Icon(
-                painter = painterResource(id = R.mipmap.ic_launcher), // Using launcher icon as placeholder
+                imageVector = Icons.Default.AccountBalance,
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
