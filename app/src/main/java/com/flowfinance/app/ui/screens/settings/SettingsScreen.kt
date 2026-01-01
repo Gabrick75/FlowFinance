@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
@@ -38,6 +39,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,11 +60,12 @@ import java.io.File
 
 @Composable
 fun SettingsScreen(
+    onProfileClick: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-    var isDarkTheme by remember { mutableStateOf(false) } // In a real app, this would be from datastore
+    val userData by viewModel.userData.collectAsState()
 
     // State for delete confirmation dialog
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -129,9 +132,9 @@ fun SettingsScreen(
         SettingsSection(title = "Perfil") {
             SettingsItem(
                 icon = Icons.Default.Person,
-                title = "Perfil do Usuário",
-                subtitle = "Gerenciar nome e moeda",
-                onClick = { }
+                title = userData.userName,
+                subtitle = "Toque para editar perfil e moeda (${userData.currency})",
+                onClick = onProfileClick
             )
         }
 
@@ -142,7 +145,10 @@ fun SettingsScreen(
                 },
                 headlineContent = { Text("Tema Escuro") },
                 trailingContent = {
-                    Switch(checked = isDarkTheme, onCheckedChange = { isDarkTheme = it })
+                    Switch(
+                        checked = userData.isDarkTheme,
+                        onCheckedChange = { viewModel.updateTheme(it) }
+                    )
                 }
             )
         }
@@ -207,7 +213,21 @@ fun SettingsScreen(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/gabriel/flowfinance"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Gabrick75/FlowFinance"))
+                        context.startActivity(intent)
+                    }
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            ListItem(
+                headlineContent = { Text("Ver documentação") },
+                leadingContent = { Icon(Icons.Default.Description, contentDescription = null) },
+                trailingContent = { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null) },
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Gabrick75/FlowFinance/blob/main/README.md"))
                         context.startActivity(intent)
                     }
             )
@@ -215,7 +235,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Desenvolvido por Gabriel como projeto de especialização em Android",
+                text = "Desenvolvido por Gabrick75",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,

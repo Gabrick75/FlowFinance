@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -18,11 +19,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -34,8 +37,10 @@ import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
 import com.flowfinance.app.ui.screens.planning.PlanningScreen
 import com.flowfinance.app.ui.screens.settings.SettingsScreen
+import com.flowfinance.app.ui.screens.settings.UserProfileScreen
 import com.flowfinance.app.ui.screens.transactions.TransactionsScreen
 import com.flowfinance.app.ui.theme.FlowFinanceTheme
+import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,47 +50,62 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FlowFinanceTheme {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val userData by settingsViewModel.userData.collectAsState()
+            
+            val isDarkTheme = userData.isDarkTheme
+
+            FlowFinanceTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 var showBottomSheet by remember { mutableStateOf(false) }
                 val sheetState = rememberModalBottomSheetState()
+                
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
 
                 Scaffold(
                     bottomBar = {
-                        NavigationBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
-                            val screens = listOf(
-                                Screen.Dashboard,
-                                Screen.Transactions,
-                                Screen.Planning,
-                                Screen.Settings
-                            )
-                            screens.forEach { screen ->
-                                NavigationBarItem(
-                                    icon = { Icon(screen.icon, contentDescription = null) },
-                                    label = { Text(screen.title) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                    onClick = {
-                                        navController.navigate(screen.route) {
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            launchSingleTop = true
-                                            restoreState = true
-                                        }
-                                    }
+                        // Hide BottomBar on UserProfile screen
+                        if (currentRoute != Screen.UserProfile.route) {
+                            NavigationBar {
+                                val currentDestination = navBackStackEntry?.destination
+                                val screens = listOf(
+                                    Screen.Dashboard,
+                                    Screen.Transactions,
+                                    Screen.Planning,
+                                    Screen.Settings
                                 )
+                                screens.forEach { screen ->
+                                    NavigationBarItem(
+                                        icon = { Icon(screen.icon, contentDescription = null) },
+                                        label = { Text(screen.title) },
+                                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                        onClick = {
+                                            navController.navigate(screen.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     },
                     floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { showBottomSheet = true },
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Nova Transação")
+                        // Hide FAB on Settings, Planning and UserProfile screens
+                        if (currentRoute != Screen.Settings.route && 
+                            currentRoute != Screen.Planning.route && 
+                            currentRoute != Screen.UserProfile.route) {
+                            FloatingActionButton(
+                                onClick = { showBottomSheet = true },
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Nova Transação")
+                            }
                         }
                     }
                 ) { innerPadding ->
@@ -96,7 +116,6 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable(Screen.Dashboard.route) {
                                 DashboardScreen(onSeeAllClick = {
-                                    // Navigate to Transactions tab behavior instead of pushing to stack
                                     navController.navigate(Screen.Transactions.route) {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
@@ -113,7 +132,12 @@ class MainActivity : ComponentActivity() {
                                 PlanningScreen()
                             }
                             composable(Screen.Settings.route) {
-                                SettingsScreen()
+                                SettingsScreen(
+                                    onProfileClick = { navController.navigate(Screen.UserProfile.route) }
+                                )
+                            }
+                            composable(Screen.UserProfile.route) {
+                                UserProfileScreen(onBackClick = { navController.popBackStack() })
                             }
                         }
                     }

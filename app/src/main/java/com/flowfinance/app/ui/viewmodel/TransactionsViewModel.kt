@@ -3,6 +3,7 @@ package com.flowfinance.app.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.local.entity.Transaction
+import com.flowfinance.app.data.preferences.UserPreferencesRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,12 +20,14 @@ import javax.inject.Inject
 data class TransactionsUiState(
     val currentMonth: YearMonth = YearMonth.now(),
     val searchQuery: String = "",
-    val transactionsByDate: Map<LocalDate, List<Transaction>> = emptyMap()
+    val transactionsByDate: Map<LocalDate, List<Transaction>> = emptyMap(),
+    val currency: String = "BRL"
 )
 
 @HiltViewModel
 class TransactionsViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow(YearMonth.now())
@@ -33,8 +36,9 @@ class TransactionsViewModel @Inject constructor(
     val uiState: StateFlow<TransactionsUiState> = combine(
         _currentMonth,
         _searchQuery,
-        transactionRepository.getAllTransactions()
-    ) { currentMonth, query, allTransactions ->
+        transactionRepository.getAllTransactions(),
+        userPreferencesRepository.userData
+    ) { currentMonth, query, allTransactions, userData ->
         val startDate = currentMonth.atDay(1)
         val endDate = currentMonth.atEndOfMonth()
         
@@ -55,7 +59,8 @@ class TransactionsViewModel @Inject constructor(
         TransactionsUiState(
             currentMonth = currentMonth,
             searchQuery = query,
-            transactionsByDate = grouped
+            transactionsByDate = grouped,
+            currency = userData.currency
         )
     }.stateIn(
         scope = viewModelScope,

@@ -28,6 +28,7 @@ import com.flowfinance.app.ui.theme.GreenIncome
 import com.flowfinance.app.ui.theme.RedExpense
 import com.flowfinance.app.ui.viewmodel.DashboardViewModel
 import com.flowfinance.app.util.TransactionType
+import com.flowfinance.app.util.formatCurrency
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -49,7 +50,8 @@ fun DashboardScreen(
             BalanceCard(
                 balance = uiState.totalBalance,
                 income = uiState.monthlyIncome,
-                expense = uiState.monthlyExpense
+                expense = uiState.monthlyExpense,
+                currencyCode = uiState.currency
             )
         }
 
@@ -117,7 +119,7 @@ fun DashboardScreen(
         }
 
         items(uiState.recentTransactions) { transaction ->
-            TransactionItem(transaction)
+            TransactionItem(transaction = transaction, currencyCode = uiState.currency)
         }
     }
 }
@@ -126,7 +128,8 @@ fun DashboardScreen(
 fun BalanceCard(
     balance: Double,
     income: Double,
-    expense: Double
+    expense: Double,
+    currencyCode: String
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -141,7 +144,7 @@ fun BalanceCard(
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
             )
             Text(
-                text = formatCurrency(balance),
+                text = formatCurrency(balance, currencyCode),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimary
@@ -156,14 +159,16 @@ fun BalanceCard(
                     amount = income,
                     icon = Icons.Default.ArrowUpward,
                     color = GreenIncome,
-                    onContainerColor = MaterialTheme.colorScheme.onPrimary
+                    onContainerColor = MaterialTheme.colorScheme.onPrimary,
+                    currencyCode = currencyCode
                 )
                 FinanceIndicator(
                     label = "Despesas",
                     amount = expense,
                     icon = Icons.Default.ArrowDownward,
                     color = RedExpense,
-                    onContainerColor = MaterialTheme.colorScheme.onPrimary
+                    onContainerColor = MaterialTheme.colorScheme.onPrimary,
+                    currencyCode = currencyCode
                 )
             }
         }
@@ -176,7 +181,8 @@ fun FinanceIndicator(
     amount: Double,
     icon: ImageVector,
     color: Color,
-    onContainerColor: Color
+    onContainerColor: Color,
+    currencyCode: String
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -201,7 +207,7 @@ fun FinanceIndicator(
                 color = onContainerColor.copy(alpha = 0.8f)
             )
             Text(
-                text = formatCurrency(amount),
+                text = formatCurrency(amount, currencyCode),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = onContainerColor
@@ -211,7 +217,7 @@ fun FinanceIndicator(
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, currencyCode: String = "BRL") {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -260,15 +266,11 @@ fun TransactionItem(transaction: Transaction) {
             val prefix = if (transaction.type == TransactionType.INCOME) "+" else "-"
             
             Text(
-                text = "$prefix${formatCurrency(transaction.amount)}",
+                text = "$prefix${formatCurrency(transaction.amount, currencyCode)}",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = amountColor
             )
         }
     }
-}
-
-fun formatCurrency(amount: Double): String {
-    return NumberFormat.getCurrencyInstance(Locale("pt", "BR")).format(amount)
 }

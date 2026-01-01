@@ -13,4 +13,5 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Transactions : Screen("transactions", "Histórico", Icons.AutoMirrored.Filled.List)
     object Planning : Screen("planning", "Planejamento", Icons.Default.PieChart)
     object Settings : Screen("settings", "Configurações", Icons.Default.Settings)
+    object UserProfile : Screen("user_profile", "Perfil", Icons.Default.Settings) // Icon not used in nav bar
 }

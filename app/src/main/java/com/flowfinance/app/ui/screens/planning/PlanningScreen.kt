@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.data.local.model.CategorySummary
-import com.flowfinance.app.ui.screens.dashboard.formatCurrency
+import com.flowfinance.app.util.formatCurrency
 import com.flowfinance.app.ui.viewmodel.PlanningViewModel
 
 @Composable
@@ -85,6 +85,9 @@ fun CategoryBudgetStart(summary: CategorySummary) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
+            // We use default currency here or we could inject it, but for simplicity we rely on default "BRL" 
+            // or we would need to fetch userData in PlanningViewModel too.
+            // Assuming BRL for planning view or we can refactor later to support currency change here too.
             Text(
                 text = "${formatCurrency(summary.totalAmount)} / ${formatCurrency(budget)}",
                 style = MaterialTheme.typography.bodySmall,

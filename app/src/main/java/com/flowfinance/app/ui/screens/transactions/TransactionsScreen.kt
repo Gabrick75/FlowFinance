@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -34,13 +35,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.ui.screens.dashboard.TransactionItem
-import com.flowfinance.app.ui.screens.dashboard.formatCurrency
+import com.flowfinance.app.util.formatCurrency
 import com.flowfinance.app.ui.viewmodel.TransactionsViewModel
 import com.flowfinance.app.util.TransactionType
 import java.time.format.DateTimeFormatter
@@ -100,7 +102,7 @@ fun TransactionsScreen(
                 stickyHeader {
                     DateHeader(date = date, dailyTotal = transactions.sumOf { 
                          if (it.type == TransactionType.EXPENSE) it.amount else 0.0
-                    })
+                    }, currencyCode = uiState.currency)
                 }
                 
                 items(
@@ -134,6 +136,8 @@ fun TransactionsScreen(
                             Box(
                                 Modifier
                                     .fillMaxSize()
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .clip(RoundedCornerShape(12.dp))
                                     .background(color)
                                     .padding(horizontal = 20.dp),
                                 contentAlignment = Alignment.CenterEnd
@@ -148,7 +152,7 @@ fun TransactionsScreen(
                         },
                         content = {
                             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).background(MaterialTheme.colorScheme.background)) {
-                                TransactionItem(transaction = transaction)
+                                TransactionItem(transaction = transaction, currencyCode = uiState.currency)
                             }
                         },
                         enableDismissFromStartToEnd = false
@@ -171,7 +175,7 @@ fun TransactionsScreen(
 }
 
 @Composable
-fun DateHeader(date: java.time.LocalDate, dailyTotal: Double) {
+fun DateHeader(date: java.time.LocalDate, dailyTotal: Double, currencyCode: String = "BRL") {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,7 +190,7 @@ fun DateHeader(date: java.time.LocalDate, dailyTotal: Double) {
         )
         if (dailyTotal > 0) {
             Text(
-                text = "Gasto: ${formatCurrency(dailyTotal)}",
+                text = "Gasto: ${formatCurrency(dailyTotal, currencyCode)}",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.local.model.CategorySummary
+import com.flowfinance.app.data.preferences.UserPreferencesRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.util.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,20 +22,23 @@ data class DashboardUiState(
     val totalBalance: Double = 0.0,
     val monthlyIncome: Double = 0.0,
     val monthlyExpense: Double = 0.0,
-    val recentTransactions: List<Transaction> = emptyList()
+    val recentTransactions: List<Transaction> = emptyList(),
+    val currency: String = "BRL"
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow(YearMonth.now())
 
     val uiState: StateFlow<DashboardUiState> = combine(
         _currentMonth,
-        transactionRepository.getAllTransactions()
-    ) { currentMonth, allTransactions ->
+        transactionRepository.getAllTransactions(),
+        userPreferencesRepository.userData
+    ) { currentMonth, allTransactions, userData ->
         
         val startDate = currentMonth.atDay(1)
         val endDate = currentMonth.atEndOfMonth()
@@ -65,7 +69,8 @@ class DashboardViewModel @Inject constructor(
             totalBalance = balance,
             monthlyIncome = income,
             monthlyExpense = expense,
-            recentTransactions = recent
+            recentTransactions = recent,
+            currency = userData.currency
         )
     }.stateIn(
         scope = viewModelScope,
