@@ -4,18 +4,18 @@ FlowFinance é um aplicativo moderno de gestão financeira pessoal para Android,
 
 ### Captura de Tela Principal
 <p align="center">
-  <img src="art/main_screenshot.png" alt="Captura de Tela do App" width="300"/>
+  <img src="docs/images/main_screenshot.jpg" alt="App Screenshot" width="300"/>
 </p>
 
 ### Mais Capturas de Tela
 <table>
   <tr>
-    <td><img src="art/screenshot1.png" alt="Screenshot 1"></td>
-    <td><img src="art/screenshot2.png" alt="Screenshot 2"></td>
+    <td><img src="docs/images/screenshot1.png" alt="Screenshot 1"></td>
+    <td><img src="docs/images/screenshot2.png" alt="Screenshot 2"></td>
   </tr>
   <tr>
-    <td><img src="art/screenshot3.png" alt="Screenshot 3"></td>
-    <td><img src="art/screenshot4.png" alt="Screenshot 4"></td>
+    <td><img src="docs/images/screenshot3.png" alt="Screenshot 3"></td>
+    <td><img src="docs/images/screenshot4.png" alt="Screenshot 4"></td>
   </tr>
 </table>
 
