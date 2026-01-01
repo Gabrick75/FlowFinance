@@ -1,7 +1,9 @@
 package com.flowfinance.app.ui.screens.settings
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,13 +24,19 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,13 +50,68 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.R
+import com.flowfinance.app.ui.viewmodel.SettingsViewModel
+import java.io.File
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var isDarkTheme by remember { mutableStateOf(false) } // In a real app, this would be from datastore
+
+    // State for delete confirmation dialog
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var deleteConfirmationText by remember { mutableStateOf("") }
+    val CONFIRMATION_PHRASE = "tenho certeza"
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Atenção: Apagar Tudo") },
+            text = {
+                Column {
+                    Text("Esta ação é irreversível. Todos os seus dados serão apagados permanentemente.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Digite \"$CONFIRMATION_PHRASE\" para confirmar:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = deleteConfirmationText,
+                        onValueChange = { deleteConfirmationText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text(CONFIRMATION_PHRASE) },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.clearAllData()
+                        showDeleteDialog = false
+                        deleteConfirmationText = ""
+                        Toast.makeText(context, "Dados apagados com sucesso.", Toast.LENGTH_SHORT).show()
+                    },
+                    enabled = deleteConfirmationText.equals(CONFIRMATION_PHRASE, ignoreCase = true),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Apagar Tudo")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showDeleteDialog = false
+                    deleteConfirmationText = ""
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -86,10 +149,24 @@ fun SettingsScreen() {
 
         SettingsSection(title = "Dados") {
             SettingsItem(
+                icon = Icons.Default.Download,
+                title = "Exportar Dados (CSV)",
+                subtitle = "Salvar planilha de transações",
+                onClick = {
+                    viewModel.exportDataToCsv { filePath ->
+                        if (filePath != null) {
+                            shareFile(context, filePath)
+                        } else {
+                            Toast.makeText(context, "Erro ao exportar dados.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            )
+            SettingsItem(
                 icon = Icons.Default.Delete,
                 title = "Limpar Dados",
                 subtitle = "Apagar todas as transações",
-                onClick = { }
+                onClick = { showDeleteDialog = true }
             )
         }
 
@@ -101,7 +178,6 @@ fun SettingsScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // App Icon
-            // Using a vector icon instead of mipmap resource to avoid AdaptiveIconDrawable crash in Compose
             Icon(
                 imageVector = Icons.Default.AccountBalance,
                 contentDescription = null,
@@ -147,6 +223,23 @@ fun SettingsScreen() {
             )
         }
     }
+}
+
+fun shareFile(context: Context, filePath: String) {
+    val file = File(filePath)
+    val uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        file
+    )
+    
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/csv"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    
+    context.startActivity(Intent.createChooser(intent, "Compartilhar Exportação"))
 }
 
 @Composable

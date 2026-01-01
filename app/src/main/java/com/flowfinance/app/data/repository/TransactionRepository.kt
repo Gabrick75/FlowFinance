@@ -40,4 +40,8 @@ class TransactionRepository @Inject constructor(
     suspend fun deleteTransaction(transaction: Transaction) {
         transactionDao.deleteTransaction(transaction)
     }
+
+    suspend fun deleteAllTransactions() {
+        transactionDao.deleteAllTransactions()
+    }
 }
