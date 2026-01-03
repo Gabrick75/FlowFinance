@@ -41,13 +41,13 @@ object DatabaseModule {
                 CoroutineScope(Dispatchers.IO).launch {
                     val dao = categoryDaoProvider.get()
                     val initialCategories = listOf(
-                        Category(name = "Alimentação", color = 0xFFEF5350.toInt(), icon = "restaurant"),
-                        Category(name = "Lazer", color = 0xFF42A5F5.toInt(), icon = "attractions"),
-                        Category(name = "Transporte", color = 0xFFFFA726.toInt(), icon = "commute"),
-                        Category(name = "Saúde", color = 0xFF66BB6A.toInt(), icon = "health_and_safety"),
-                        Category(name = "Educação", color = 0xFFAB47BC.toInt(), icon = "school"),
-                        Category(name = "Salário", color = 0xFF26A69A.toInt(), icon = "payments"),
-                        Category(name = "Investimentos", color = 0xFF7E57C2.toInt(), icon = "trending_up")
+                        Category(name = "Alimentação", color = 0xFFEF5350.toInt(), icon = "restaurant", isDefault = true),
+                        Category(name = "Lazer", color = 0xFF42A5F5.toInt(), icon = "attractions", isDefault = true),
+                        Category(name = "Transporte", color = 0xFFFFA726.toInt(), icon = "commute", isDefault = true),
+                        Category(name = "Saúde", color = 0xFF66BB6A.toInt(), icon = "health_and_safety", isDefault = true),
+                        Category(name = "Educação", color = 0xFFAB47BC.toInt(), icon = "school", isDefault = true),
+                        Category(name = "Salário", color = 0xFF26A69A.toInt(), icon = "payments", isDefault = true),
+                        Category(name = "Investimentos", color = 0xFF7E57C2.toInt(), icon = "trending_up", isDefault = true)
                     )
                     initialCategories.forEach { dao.insertCategory(it) }
                 }

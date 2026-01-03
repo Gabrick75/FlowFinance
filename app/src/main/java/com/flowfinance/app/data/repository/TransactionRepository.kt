@@ -3,6 +3,7 @@ package com.flowfinance.app.data.repository
 import com.flowfinance.app.data.local.dao.TransactionDao
 import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.local.model.CategorySummary
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.util.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -13,6 +14,10 @@ import javax.inject.Singleton
 class TransactionRepository @Inject constructor(
     private val transactionDao: TransactionDao
 ) {
+    fun getAllTransactionsWithCategory(): Flow<List<TransactionWithCategory>> {
+        return transactionDao.getAllTransactionsWithCategory()
+    }
+
     fun getAllTransactions(): Flow<List<Transaction>> {
         return transactionDao.getAllTransactions()
     }
@@ -27,6 +32,10 @@ class TransactionRepository @Inject constructor(
 
     fun getCategorySummaryByTypeAndDateRange(type: TransactionType, startDate: LocalDate, endDate: LocalDate): Flow<List<CategorySummary>> {
         return transactionDao.getCategorySummaryByTypeAndDateRange(type, startDate, endDate)
+    }
+
+    suspend fun getTransactionCountForCategory(categoryId: Int): Int {
+        return transactionDao.getTransactionCountForCategory(categoryId)
     }
 
     suspend fun insertTransaction(transaction: Transaction) {

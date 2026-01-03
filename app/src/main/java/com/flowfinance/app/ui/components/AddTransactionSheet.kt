@@ -52,6 +52,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.data.local.entity.Category
+import com.flowfinance.app.ui.screens.planning.rememberCategoryIcon
 import com.flowfinance.app.ui.viewmodel.AddTransactionViewModel
 import com.flowfinance.app.util.TransactionType
 import java.time.Instant
@@ -67,8 +68,6 @@ fun AddTransactionSheet(
     sheetState: SheetState,
     viewModel: AddTransactionViewModel = hiltViewModel()
 ) {
-    val categories by viewModel.categories.collectAsState()
-    
     var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(TransactionType.EXPENSE) }
@@ -76,9 +75,21 @@ fun AddTransactionSheet(
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
 
+    val categories by if (selectedType == TransactionType.INCOME) {
+        viewModel.incomeCategories.collectAsState()
+    } else {
+        viewModel.expenseCategories.collectAsState()
+    }
+
+    // Reset selected category if it doesn't exist in the new list
+    LaunchedEffect(categories) {
+        if (selectedCategory != null && categories.none { it.id == selectedCategory!!.id }) {
+            selectedCategory = null
+        }
+    }
+
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
-            // Use UTC to ensure consistency with DatePicker's internal logic which uses UTC midnight
             initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
         )
         DatePickerDialog(
@@ -86,7 +97,6 @@ fun AddTransactionSheet(
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        // Interpret the UTC millis as the date in UTC, ignoring local time zone offset
                         selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).toLocalDate()
                     }
                     showDatePicker = false
@@ -238,14 +248,21 @@ fun CategoryChip(
                 ),
             contentAlignment = Alignment.Center
         ) {
+            val icon = rememberCategoryIcon(category.icon)
+
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
+            } else if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = category.name,
+                    tint = Color(category.color)
+                )
             } else {
-                // Ideally show category icon here
                 Text(
                     text = category.name.take(1).uppercase(),
                     color = Color(category.color),

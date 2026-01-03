@@ -44,7 +44,7 @@ The system's operation is based on the reactivity between the database and the u
 -   **Transaction History**: Browse your full transaction history, grouped by date with sticky headers for easy navigation.
 -   **Monthly Filters**: Easily navigate between different months to see your financial history.
 -   **Swipe-to-Dismiss**: Fluidly delete transactions by swiping them away in the history list.
--   **Budget Planning**: Set and track spending goals by category with progress bars that change color as you approach the limit. *(Note: This feature is currently under development and uses placeholder data.)*
+-   **Budget Planning**: Set and track spending goals by category with progress bars that change color as you approach the limit.
 -   **Secure Data Management**: A "Clear Data" option with a confirmation dialog to prevent accidental data loss.
 -   **Data Export**: Export all your transaction data to a CSV file to share or analyze elsewhere.
 -   **User Personalization**:

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import com.flowfinance.app.ui.components.AddTransactionSheet
 import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
+import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
 import com.flowfinance.app.ui.screens.planning.PlanningScreen
 import com.flowfinance.app.ui.screens.settings.SettingsScreen
 import com.flowfinance.app.ui.screens.settings.UserProfileScreen
@@ -65,8 +67,7 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     bottomBar = {
-                        // Hide BottomBar on UserProfile screen
-                        if (currentRoute != Screen.UserProfile.route) {
+                        if (currentRoute != Screen.UserProfile.route && currentRoute != Screen.ManageBudgets.route) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
                                 val screens = listOf(
@@ -95,16 +96,24 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
-                        // Hide FAB on Settings, Planning and UserProfile screens
-                        if (currentRoute != Screen.Settings.route && 
-                            currentRoute != Screen.Planning.route && 
-                            currentRoute != Screen.UserProfile.route) {
-                            FloatingActionButton(
-                                onClick = { showBottomSheet = true },
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Nova Transação")
+                        when (currentRoute) {
+                            Screen.Dashboard.route -> {
+                                FloatingActionButton(
+                                    onClick = { showBottomSheet = true },
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = "Nova Transação")
+                                }
+                            }
+                            Screen.Planning.route -> {
+                                FloatingActionButton(
+                                    onClick = { navController.navigate(Screen.ManageBudgets.route) },
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                                ) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Gerenciar Metas")
+                                }
                             }
                         }
                     }
@@ -138,6 +147,9 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.UserProfile.route) {
                                 UserProfileScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(Screen.ManageBudgets.route) {
+                                ManageBudgetsScreen(onBackClick = { navController.popBackStack() })
                             }
                         }
                     }

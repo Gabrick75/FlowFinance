@@ -101,18 +101,18 @@ fun TransactionsScreen(
             uiState.transactionsByDate.forEach { (date, transactions) ->
                 stickyHeader {
                     DateHeader(date = date, dailyTotal = transactions.sumOf { 
-                         if (it.type == TransactionType.EXPENSE) it.amount else 0.0
+                         if (it.transaction.type == TransactionType.EXPENSE) it.transaction.amount else 0.0
                     }, currencyCode = uiState.currency)
                 }
                 
                 items(
                     items = transactions,
-                    key = { it.id }
-                ) { transaction ->
+                    key = { it.transaction.id } 
+                ) { transactionWithCategory ->
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = {
                             if (it == SwipeToDismissBoxValue.EndToStart) {
-                                viewModel.deleteTransaction(transaction)
+                                viewModel.deleteTransaction(transactionWithCategory.transaction)
                                 true
                             } else {
                                 false
@@ -152,7 +152,7 @@ fun TransactionsScreen(
                         },
                         content = {
                             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).background(MaterialTheme.colorScheme.background)) {
-                                TransactionItem(transaction = transaction, currencyCode = uiState.currency)
+                                TransactionItem(transactionWithCategory = transactionWithCategory, currencyCode = uiState.currency)
                             }
                         },
                         enableDismissFromStartToEnd = false

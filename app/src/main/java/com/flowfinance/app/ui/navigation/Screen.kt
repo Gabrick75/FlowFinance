@@ -2,6 +2,7 @@ package com.flowfinance.app.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PieChart
@@ -14,4 +15,5 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Planning : Screen("planning", "Planejamento", Icons.Default.PieChart)
     object Settings : Screen("settings", "Configurações", Icons.Default.Settings)
     object UserProfile : Screen("user_profile", "Perfil", Icons.Default.Settings) // Icon not used in nav bar
+    object ManageBudgets : Screen("manage_budgets", "Gerenciar Metas", Icons.Default.Edit)
 }

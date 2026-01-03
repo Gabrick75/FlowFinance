@@ -3,6 +3,7 @@ package com.flowfinance.app.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.local.entity.Transaction
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.data.preferences.UserPreferencesRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,7 @@ import javax.inject.Inject
 data class TransactionsUiState(
     val currentMonth: YearMonth = YearMonth.now(),
     val searchQuery: String = "",
-    val transactionsByDate: Map<LocalDate, List<Transaction>> = emptyMap(),
+    val transactionsByDate: Map<LocalDate, List<TransactionWithCategory>> = emptyMap(),
     val currency: String = "BRL"
 )
 
@@ -36,24 +37,25 @@ class TransactionsViewModel @Inject constructor(
     val uiState: StateFlow<TransactionsUiState> = combine(
         _currentMonth,
         _searchQuery,
-        transactionRepository.getAllTransactions(),
+        transactionRepository.getAllTransactionsWithCategory(),
         userPreferencesRepository.userData
     ) { currentMonth, query, allTransactions, userData ->
         val startDate = currentMonth.atDay(1)
         val endDate = currentMonth.atEndOfMonth()
         
         var filteredTransactions = allTransactions.filter { 
-            !it.date.isBefore(startDate) && !it.date.isAfter(endDate) 
+            !it.transaction.date.isBefore(startDate) && !it.transaction.date.isAfter(endDate) 
         }
 
         if (query.isNotBlank()) {
             filteredTransactions = filteredTransactions.filter {
-                it.description.contains(query, ignoreCase = true)
+                it.transaction.description.contains(query, ignoreCase = true) ||
+                it.category.name.contains(query, ignoreCase = true)
             }
         }
 
         val grouped = filteredTransactions
-            .groupBy { it.date }
+            .groupBy { it.transaction.date }
             .toSortedMap(compareByDescending { it }) // Recent dates first
 
         TransactionsUiState(

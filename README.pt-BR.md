@@ -42,7 +42,7 @@ A operação do sistema baseia-se na reatividade entre o banco de dados e a inte
 -   **Histórico de Transações**: Navegue por seu histórico completo de transações, agrupado por data com cabeçalhos fixos (`sticky headers`) para facilitar a navegação.
 -   **Filtros Mensais**: Alterne facilmente entre diferentes meses para visualizar seu histórico financeiro.
 -   **Deslizar para Excluir**: Apague transações de forma fluida ao deslizá-las para o lado na lista de histórico.
--   **Planejamento de Orçamentos**: Defina e acompanhe metas de gastos por categoria com barras de progresso que mudam de cor conforme o limite se aproxima. *(Observação: Esta funcionalidade está em desenvolvimento e usa dados de exemplo.)*
+-   **Planejamento de Orçamentos**: Defina e acompanhe metas de gastos por categoria com barras de progresso que mudam de cor conforme o limite se aproxima.
 -   **Gerenciamento Seguro de Dados**: Uma opção de "Limpar Dados" com um diálogo de confirmação para evitar perdas acidentais.
 -   **Exportação de Dados**: Exporte todos os seus dados de transações para um arquivo CSV para compartilhar ou analisar em outro lugar.
 -   **Personalização do Usuário**:

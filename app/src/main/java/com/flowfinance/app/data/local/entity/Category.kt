@@ -9,5 +9,6 @@ data class Category(
     val name: String,
     val color: Int, // Color int
     val icon: String? = null,
-    val budgetLimit: Double? = null // Optional monthly budget for this category
+    val budgetLimit: Double? = null, // Optional monthly budget for this category
+    val isDefault: Boolean = false // Flag to identify default categories
 )

@@ -2,8 +2,8 @@ package com.flowfinance.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.local.model.CategorySummary
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.data.preferences.UserPreferencesRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.util.TransactionType
@@ -22,7 +22,7 @@ data class DashboardUiState(
     val totalBalance: Double = 0.0,
     val monthlyIncome: Double = 0.0,
     val monthlyExpense: Double = 0.0,
-    val recentTransactions: List<Transaction> = emptyList(),
+    val recentTransactions: List<TransactionWithCategory> = emptyList(),
     val currency: String = "BRL"
 )
 
@@ -36,7 +36,7 @@ class DashboardViewModel @Inject constructor(
 
     val uiState: StateFlow<DashboardUiState> = combine(
         _currentMonth,
-        transactionRepository.getAllTransactions(),
+        transactionRepository.getAllTransactionsWithCategory(),
         userPreferencesRepository.userData
     ) { currentMonth, allTransactions, userData ->
         
@@ -44,23 +44,23 @@ class DashboardViewModel @Inject constructor(
         val endDate = currentMonth.atEndOfMonth()
         
         val monthTransactions = allTransactions.filter { 
-            !it.date.isBefore(startDate) && !it.date.isAfter(endDate) 
+            !it.transaction.date.isBefore(startDate) && !it.transaction.date.isAfter(endDate) 
         }
 
         val income = monthTransactions
-            .filter { it.type == TransactionType.INCOME }
-            .sumOf { it.amount }
+            .filter { it.transaction.type == TransactionType.INCOME }
+            .sumOf { it.transaction.amount }
             
         val expense = monthTransactions
-            .filter { it.type == TransactionType.EXPENSE }
-            .sumOf { it.amount }
+            .filter { it.transaction.type == TransactionType.EXPENSE }
+            .sumOf { it.transaction.amount }
 
         val totalIncome = allTransactions
-            .filter { it.type == TransactionType.INCOME }
-            .sumOf { it.amount }
+            .filter { it.transaction.type == TransactionType.INCOME }
+            .sumOf { it.transaction.amount }
         val totalExpense = allTransactions
-            .filter { it.type == TransactionType.EXPENSE }
-            .sumOf { it.amount }
+            .filter { it.transaction.type == TransactionType.EXPENSE }
+            .sumOf { it.transaction.amount }
         val balance = totalIncome - totalExpense
 
         val recent = allTransactions.take(5)

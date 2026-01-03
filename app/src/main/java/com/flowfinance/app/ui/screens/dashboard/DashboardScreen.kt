@@ -22,15 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.flowfinance.app.data.local.entity.Transaction
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.components.PieChart
+import com.flowfinance.app.ui.screens.planning.rememberCategoryIcon
 import com.flowfinance.app.ui.theme.GreenIncome
 import com.flowfinance.app.ui.theme.RedExpense
 import com.flowfinance.app.ui.viewmodel.DashboardViewModel
 import com.flowfinance.app.util.TransactionType
 import com.flowfinance.app.util.formatCurrency
-import java.text.NumberFormat
-import java.util.Locale
 
 @Composable
 fun DashboardScreen(
@@ -118,8 +117,8 @@ fun DashboardScreen(
             }
         }
 
-        items(uiState.recentTransactions) { transaction ->
-            TransactionItem(transaction = transaction, currencyCode = uiState.currency)
+        items(uiState.recentTransactions) { transactionWithCategory ->
+            TransactionItem(transactionWithCategory = transactionWithCategory, currencyCode = uiState.currency)
         }
     }
 }
@@ -217,7 +216,10 @@ fun FinanceIndicator(
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction, currencyCode: String = "BRL") {
+fun TransactionItem(transactionWithCategory: TransactionWithCategory, currencyCode: String) {
+    val transaction = transactionWithCategory.transaction
+    val category = transactionWithCategory.category
+
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -232,20 +234,23 @@ fun TransactionItem(transaction: Transaction, currencyCode: String = "BRL") {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Placeholder for category icon since we only have ID in Transaction entity
-                // In a real app we would join with Category or have it in the model
                 Box(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(Color(category.color)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = transaction.description.take(1).uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    val icon = rememberCategoryIcon(category.icon)
+                    if(icon != null) {
+                        Icon(icon, contentDescription = transaction.description, tint = Color.White)
+                    } else {
+                        Text(
+                            text = category.name.take(1).uppercase(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {

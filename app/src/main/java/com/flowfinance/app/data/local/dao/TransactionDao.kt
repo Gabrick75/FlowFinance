@@ -5,15 +5,21 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction as RoomTransaction
 import androidx.room.Update
 import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.local.model.CategorySummary
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.util.TransactionType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
 interface TransactionDao {
+    @RoomTransaction
+    @Query("SELECT * FROM transactions ORDER BY date DESC")
+    fun getAllTransactionsWithCategory(): Flow<List<TransactionWithCategory>>
+
     @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<Transaction>>
 
@@ -31,6 +37,9 @@ interface TransactionDao {
         GROUP BY c.id
     """)
     fun getCategorySummaryByTypeAndDateRange(type: TransactionType, startDate: LocalDate, endDate: LocalDate): Flow<List<CategorySummary>>
+
+    @Query("SELECT COUNT(*) FROM transactions WHERE categoryId = :categoryId")
+    suspend fun getTransactionCountForCategory(categoryId: Int): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransaction(transaction: Transaction)
