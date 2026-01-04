@@ -74,6 +74,7 @@ fun AddTransactionSheet(
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    val maxDescriptionLength = 35
 
     val categories by if (selectedType == TransactionType.INCOME) {
         viewModel.incomeCategories.collectAsState()
@@ -156,9 +157,10 @@ fun AddTransactionSheet(
             // Description Input
             OutlinedTextField(
                 value = description,
-                onValueChange = { description = it },
+                onValueChange = { if (it.length <= maxDescriptionLength) description = it },
                 label = { Text("Descrição") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                supportingText = { Text("${description.length} / $maxDescriptionLength") }
             )
 
             // Category Selector

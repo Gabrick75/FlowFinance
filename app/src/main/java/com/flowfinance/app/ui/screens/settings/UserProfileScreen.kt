@@ -41,6 +41,7 @@ fun UserProfileScreen(
     var name by remember(userData.userName) { mutableStateOf(userData.userName) }
     var selectedCurrency by remember(userData.currency) { mutableStateOf(userData.currency) }
     
+    val maxNameLength = 50
     // Simple list of currencies for demo
     val currencies = listOf("BRL", "USD", "EUR")
 
@@ -76,10 +77,11 @@ fun UserProfileScreen(
                     )
                     OutlinedTextField(
                         value = name,
-                        onValueChange = { name = it },
+                        onValueChange = { if (it.length <= maxNameLength) name = it },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Seu nome") },
-                        singleLine = true
+                        singleLine = true,
+                        supportingText = { Text("${name.length} / $maxNameLength") }
                     )
                 }
 

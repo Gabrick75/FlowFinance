@@ -188,6 +188,7 @@ fun ManageBudgetsScreen(
 @Composable
 fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String) -> Unit) {
     var newCategoryName by remember { mutableStateOf("") }
+    val maxCategoryNameLength = 25
 
     val colors = listOf(
         Color(0xFFEF5350), Color(0xFF42A5F5), Color(0xFFFFA726), Color(0xFF66BB6A), Color(0xFFAB47BC)
@@ -204,9 +205,10 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
                     value = newCategoryName,
-                    onValueChange = { newCategoryName = it },
+                    onValueChange = { if (it.length <= maxCategoryNameLength) newCategoryName = it },
                     label = { Text("Nome da Categoria") },
-                    singleLine = true
+                    singleLine = true,
+                    supportingText = { Text("${newCategoryName.length} / $maxCategoryNameLength") }
                 )
 
                 // Color Picker
