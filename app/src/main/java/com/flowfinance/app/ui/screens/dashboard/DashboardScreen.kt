@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.components.PieChart
@@ -41,8 +40,8 @@ fun DashboardScreen(
 
     LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -82,7 +81,7 @@ fun DashboardScreen(
                             )
                             // Legend could go here
                             Column {
-                                chartData.take(4).forEach { 
+                                chartData.forEach { 
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
                                             modifier = Modifier

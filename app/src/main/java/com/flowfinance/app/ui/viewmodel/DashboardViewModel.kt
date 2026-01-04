@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.local.model.CategorySummary
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.data.preferences.UserPreferencesRepository
+import com.flowfinance.app.data.repository.CategoryRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.util.TransactionType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +30,8 @@ data class DashboardUiState(
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val categoryRepository: CategoryRepository // Injected CategoryRepository
 ) : ViewModel() {
 
     private val _currentMonth = MutableStateFlow(YearMonth.now())
@@ -79,19 +81,17 @@ class DashboardViewModel @Inject constructor(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val chartData: StateFlow<List<CategorySummary>> = _currentMonth
-        .flatMapLatest { month ->
-            val startDate = month.atDay(1)
-            val endDate = month.atEndOfMonth()
-            transactionRepository.getCategorySummaryByTypeAndDateRange(
-                TransactionType.EXPENSE,
-                startDate,
-                endDate
-            )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+    val chartData: StateFlow<List<CategorySummary>> = _currentMonth.flatMapLatest { month ->
+        val startDate = month.atDay(1)
+        val endDate = month.atEndOfMonth()
+        transactionRepository.getCategorySummaryByTypeAndDateRange(
+            TransactionType.EXPENSE,
+            startDate,
+            endDate
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 }
