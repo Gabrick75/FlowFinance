@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,7 +32,7 @@ import com.flowfinance.app.ui.viewmodel.PlanningViewModel
 fun PlanningScreen(
     viewModel: PlanningViewModel = hiltViewModel()
 ) {
-    val categorySpendings by viewModel.categorySpendings.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -54,17 +53,14 @@ fun PlanningScreen(
             )
         }
 
-        items(categorySpendings) { summary ->
-            CategoryBudgetStart(summary)
+        items(uiState.categorySpendings) { summary ->
+            CategoryBudgetStart(summary = summary, currencyCode = uiState.currency)
         }
     }
 }
 
 @Composable
-fun CategoryBudgetStart(summary: CategorySummary) {
-    // Note: Since we don't have a way to edit budgets in the current requirements yet,
-    // we will simulate a budget or use the optional one from entity if present.
-    // Defaulting to a fixed value or logic for demo purposes if null.
+fun CategoryBudgetStart(summary: CategorySummary, currencyCode: String) {
     val budget = summary.category.budgetLimit ?: 1000.0 // Default demo budget
     val progress = (summary.totalAmount / budget).toFloat().coerceIn(0f, 1f)
     
@@ -86,11 +82,8 @@ fun CategoryBudgetStart(summary: CategorySummary) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            // We use default currency here or we could inject it, but for simplicity we rely on default "BRL" 
-            // or we would need to fetch userData in PlanningViewModel too.
-            // Assuming BRL for planning view or we can refactor later to support currency change here too.
             Text(
-                text = "${formatCurrency(summary.totalAmount)} / ${formatCurrency(budget)}",
+                text = "${formatCurrency(summary.totalAmount, currencyCode)} / ${formatCurrency(budget, currencyCode)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
