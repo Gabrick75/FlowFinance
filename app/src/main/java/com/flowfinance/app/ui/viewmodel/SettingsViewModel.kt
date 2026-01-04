@@ -58,7 +58,7 @@ class SettingsViewModel @Inject constructor(
     fun exportDataToCsv(onResult: (String?) -> Unit) {
         viewModelScope.launch {
             try {
-                val transactions = transactionRepository.getAllTransactions().first()
+                val transactionsWithCategory = transactionRepository.getAllTransactionsWithCategory().first()
                 val userData = userPreferencesRepository.userData.first()
                 
                 val fileName = "flowfinance_export_${System.currentTimeMillis()}.csv"
@@ -70,9 +70,9 @@ class SettingsViewModel @Inject constructor(
                     writer.append("\n") // Blank line separator
                     
                     // Transaction Data
-                    writer.append("Id,Description,Amount,Date,Type,CategoryId\n")
-                    transactions.forEach {
-                        writer.append("${it.id},${it.description},${it.amount},${it.date},${it.type},${it.categoryId}\n")
+                    writer.append("Id,Description,Amount,Date,Type,CategoryName\n")
+                    transactionsWithCategory.forEach { (transaction, category) ->
+                        writer.append("${transaction.id},${transaction.description},${transaction.amount},${transaction.date},${transaction.type},${category.name}\n")
                     }
                 }
                 
