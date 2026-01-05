@@ -81,6 +81,9 @@ dependencies {
     // API Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    // Color Picker
+    implementation("com.github.skydoves:colorpicker-compose:1.0.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

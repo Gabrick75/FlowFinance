@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -72,6 +73,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.data.local.entity.Category
 import com.flowfinance.app.ui.viewmodel.DeleteResult
 import com.flowfinance.app.ui.viewmodel.ManageBudgetsViewModel
+import com.github.skydoves.colorpicker.compose.ColorEnvelope
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -190,10 +194,8 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String
     var newCategoryName by remember { mutableStateOf("") }
     val maxCategoryNameLength = 25
 
-    val colors = listOf(
-        Color(0xFFEF5350), Color(0xFF42A5F5), Color(0xFFFFA726), Color(0xFF66BB6A), Color(0xFFAB47BC)
-    )
-    var selectedColor by remember { mutableStateOf(colors.first()) }
+    val controller = rememberColorPickerController()
+    var selectedColor by remember { mutableStateOf(Color.White) }
 
     val icons = remember { getCategoryIconMap() }
     var selectedIconName by remember { mutableStateOf(icons.keys.first()) }
@@ -213,22 +215,16 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String
 
                 // Color Picker
                 Text("Cor", style = MaterialTheme.typography.titleSmall)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    colors.forEach { color ->
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .clickable { selectedColor = color }
-                                .then(
-                                    if (selectedColor == color) {
-                                        Modifier.border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                                    } else Modifier
-                                )
-                        )
+                HsvColorPicker(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    controller = controller,
+                    onColorChanged = { colorEnvelope: ColorEnvelope ->
+                        selectedColor = colorEnvelope.color
                     }
-                }
+                )
+
 
                 // Icon Picker
                 Text("Ícone", style = MaterialTheme.typography.titleSmall)

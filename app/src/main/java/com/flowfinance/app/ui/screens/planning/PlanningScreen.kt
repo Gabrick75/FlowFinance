@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,12 +65,7 @@ fun CategoryBudgetStart(summary: CategorySummary, currencyCode: String) {
     val budget = summary.category.budgetLimit ?: 1000.0 // Default demo budget
     val progress = (summary.totalAmount / budget).toFloat().coerceIn(0f, 1f)
     
-    // Color changes as it approaches limit
-    val progressColor = when {
-        progress < 0.5f -> Color(0xFF4CAF50) // Green
-        progress < 0.8f -> Color(0xFFFF9800) // Orange
-        else -> Color(0xFFF44336) // Red
-    }
+    val progressColor = Color(summary.category.color)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -96,7 +92,7 @@ fun CategoryBudgetStart(summary: CategorySummary, currencyCode: String) {
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp)),
             color = progressColor,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = progressColor.copy(alpha = 0.3f)
         )
     }
 }
