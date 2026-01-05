@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.preferences.UserData
 import com.flowfinance.app.data.preferences.UserPreferencesRepository
+import com.flowfinance.app.data.repository.CategoryRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
+    private val categoryRepository: CategoryRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -51,7 +53,10 @@ class SettingsViewModel @Inject constructor(
 
     fun clearAllData() {
         viewModelScope.launch {
+            // First delete all transactions
             transactionRepository.deleteAllTransactions()
+            // Then delete all custom categories
+            categoryRepository.deleteAllCustomCategories()
         }
     }
 

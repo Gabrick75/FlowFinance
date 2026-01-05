@@ -29,4 +29,8 @@ class CategoryRepository @Inject constructor(
     suspend fun deleteCategory(category: Category) {
         categoryDao.deleteCategory(category)
     }
+
+    suspend fun deleteAllCustomCategories() {
+        categoryDao.deleteAllCustomCategories()
+    }
 }
