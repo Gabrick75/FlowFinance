@@ -3,9 +3,11 @@ package com.flowfinance.app.ui.screens.planning
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,15 +27,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Commute
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,14 +80,16 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ManageBudgetsScreen(
     onBackClick: () -> Unit,
     viewModel: ManageBudgetsViewModel = hiltViewModel()
 ) {
     val categories by viewModel.categories.collectAsState()
-    var showCreateCategoryDialog by remember { mutableStateOf(false) }
+    var showCreateOrEditDialog by remember { mutableStateOf<Category?>(null) }
+    var isCreating by remember { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -102,12 +105,21 @@ fun ManageBudgetsScreen(
         }
     }
 
-    if (showCreateCategoryDialog) {
-        CreateCategoryDialog(
-            onDismiss = { showCreateCategoryDialog = false },
-            onCreate = { name, color, iconName ->
-                viewModel.createNewCategory(name, color.toArgb(), iconName)
-                showCreateCategoryDialog = false
+    if (isCreating || showCreateOrEditDialog != null) {
+        CategoryDialog(
+            category = showCreateOrEditDialog,
+            onDismiss = { 
+                showCreateOrEditDialog = null
+                isCreating = false
+            },
+            onConfirm = { name, color, iconName, categoryToUpdate ->
+                if (categoryToUpdate != null) {
+                    viewModel.updateCategoryDetails(categoryToUpdate, name, color.toArgb(), iconName)
+                } else {
+                    viewModel.createNewCategory(name, color.toArgb(), iconName)
+                }
+                showCreateOrEditDialog = null
+                isCreating = false
             }
         )
     }
@@ -125,7 +137,7 @@ fun ManageBudgetsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showCreateCategoryDialog = true }) {
+            FloatingActionButton(onClick = { isCreating = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Nova Categoria")
             }
         }
@@ -142,12 +154,9 @@ fun ManageBudgetsScreen(
                     confirmValueChange = {
                         if (it == SwipeToDismissBoxValue.EndToStart) {
                             viewModel.deleteCategory(category)
-                            // We don't want to immediately dismiss, we wait for VM feedback
-                            // but for simplicity for now, we will assume it might fail and stay
-                            false
+                            true
                         } else false
-                    },
-                    positionalThreshold = { it * .25f }
+                    }
                 )
 
                 SwipeToDismissBox(
@@ -177,9 +186,14 @@ fun ManageBudgetsScreen(
                         }
                     },
                     content = {
-                         BudgetCategoryItem(category = category, onBudgetChange = { newBudget ->
-                            viewModel.updateBudget(category, newBudget)
-                        })
+                         BudgetCategoryItem(category = category, 
+                            onBudgetChange = { newBudget ->
+                                viewModel.updateBudget(category, newBudget)
+                            },
+                            onLongClick = { 
+                                showCreateOrEditDialog = category 
+                            }
+                        )
                     },
                     enableDismissFromStartToEnd = false,
                     enableDismissFromEndToStart = !category.isDefault
@@ -190,19 +204,19 @@ fun ManageBudgetsScreen(
 }
 
 @Composable
-fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String) -> Unit) {
-    var newCategoryName by remember { mutableStateOf("") }
+fun CategoryDialog(category: Category?, onDismiss: () -> Unit, onConfirm: (String, Color, String, Category?) -> Unit) {
+    var newCategoryName by remember { mutableStateOf(category?.name ?: "") }
     val maxCategoryNameLength = 25
 
     val controller = rememberColorPickerController()
-    var selectedColor by remember { mutableStateOf(Color.White) }
+    var selectedColor by remember { mutableStateOf(category?.let { Color(it.color) } ?: Color.White) }
 
     val icons = remember { getCategoryIconMap() }
-    var selectedIconName by remember { mutableStateOf(icons.keys.first()) }
+    var selectedIconName by remember { mutableStateOf(category?.icon ?: icons.keys.first()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nova Categoria") },
+        title = { Text(if (category == null) "Nova Categoria" else "Editar Categoria") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
@@ -248,12 +262,12 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String
             Button(
                 onClick = {
                     if (newCategoryName.isNotBlank()) {
-                        onCreate(newCategoryName, selectedColor, selectedIconName)
+                        onConfirm(newCategoryName, selectedColor, selectedIconName, category)
                     }
                 },
                 enabled = newCategoryName.isNotBlank()
             ) {
-                Text("Criar")
+                Text(if (category == null) "Criar" else "Salvar")
             }
         },
         dismissButton = {
@@ -265,15 +279,25 @@ fun CreateCategoryDialog(onDismiss: () -> Unit, onCreate: (String, Color, String
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BudgetCategoryItem(
     category: Category,
-    onBudgetChange: (Double?) -> Unit
+    onBudgetChange: (Double?) -> Unit,
+    onLongClick: () -> Unit
 ) {
     var budget by remember(category.budgetLimit) { mutableStateOf(category.budgetLimit?.toString() ?: "") }
 
     Row(
-        modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(8.dp).clip(RoundedCornerShape(12.dp)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onLongClick
+            )
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(8.dp)
+            .clip(RoundedCornerShape(12.dp)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -327,7 +351,7 @@ fun getCategoryIconMap(): Map<String, ImageVector> {
         "commute" to Icons.Default.Commute,
         "health_and_safety" to Icons.Default.HealthAndSafety,
         "school" to Icons.Default.School,
-        "payments" to Icons.Default.TrendingUp,
-        "trending_up" to Icons.Default.TrendingUp
+        "payments" to Icons.AutoMirrored.Filled.TrendingUp,
+        "trending_up" to Icons.AutoMirrored.Filled.TrendingUp
     )
 }

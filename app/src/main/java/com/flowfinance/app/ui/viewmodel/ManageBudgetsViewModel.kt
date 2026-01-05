@@ -48,6 +48,17 @@ class ManageBudgetsViewModel @Inject constructor(
             categoryRepository.insertCategory(newCategory)
         }
     }
+    
+    fun updateCategoryDetails(category: Category, newName: String, newColor: Int, newIcon: String?) {
+        viewModelScope.launch {
+            val updatedCategory = category.copy(
+                name = newName,
+                color = newColor,
+                icon = newIcon
+            )
+            categoryRepository.updateCategory(updatedCategory)
+        }
+    }
 
     fun deleteCategory(category: Category) {
         viewModelScope.launch {
