@@ -1,5 +1,6 @@
 package com.flowfinance.app.data.local.entity
 
+import androidx.compose.runtime.Immutable
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -7,6 +8,7 @@ import androidx.room.PrimaryKey
 import com.flowfinance.app.util.TransactionType
 import java.time.LocalDate
 
+@Immutable
 @Entity(
     tableName = "transactions",
     foreignKeys = [

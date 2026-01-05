@@ -46,11 +46,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.flowfinance.app.BuildConfig
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 import java.io.File
 
@@ -70,7 +72,7 @@ fun SettingsScreen(
 
     if (showDeleteDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = {},
             title = { Text("Atenção: Apagar Tudo") },
             text = {
                 Column {
@@ -91,8 +93,6 @@ fun SettingsScreen(
                 Button(
                     onClick = {
                         viewModel.clearAllData()
-                        showDeleteDialog = false
-                        deleteConfirmationText = ""
                         Toast.makeText(context, "Dados apagados com sucesso.", Toast.LENGTH_SHORT).show()
                     },
                     enabled = deleteConfirmationText.equals(CONFIRMATION_PHRASE, ignoreCase = true),
@@ -103,8 +103,6 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { 
-                    showDeleteDialog = false
-                    deleteConfirmationText = ""
                 }) {
                     Text("Cancelar")
                 }
@@ -168,7 +166,7 @@ fun SettingsScreen(
                 icon = Icons.Default.Delete,
                 title = "Limpar Dados",
                 subtitle = "Apagar todas as transações",
-                onClick = { showDeleteDialog = true }
+                onClick = {}
             )
         }
 
@@ -195,7 +193,7 @@ fun SettingsScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Versão ${BuildConfig.VERSION_NAME}",
+                text = "Versão ${stringResource(id = R.string.app_version_name)}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -234,7 +232,7 @@ fun SettingsScreen(
                 text = "Desenvolvido por Gabrick75",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 32.dp)
             )
         }

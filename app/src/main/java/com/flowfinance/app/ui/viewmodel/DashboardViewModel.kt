@@ -1,5 +1,6 @@
 package com.flowfinance.app.ui.viewmodel
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flowfinance.app.data.local.model.CategorySummary
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.YearMonth
 import javax.inject.Inject
 
+@Immutable
 data class DashboardUiState(
     val totalBalance: Double = 0.0,
     val monthlyIncome: Double = 0.0,
