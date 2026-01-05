@@ -47,7 +47,8 @@ object DatabaseModule {
                         Category(name = "Saúde", color = 0xFF66BB6A.toInt(), icon = "health_and_safety", isDefault = true),
                         Category(name = "Educação", color = 0xFFAB47BC.toInt(), icon = "school", isDefault = true),
                         Category(name = "Salário", color = 0xFF26A69A.toInt(), icon = "payments", isDefault = true),
-                        Category(name = "Investimentos", color = 0xFF7E57C2.toInt(), icon = "trending_up", isDefault = true)
+                        Category(name = "Investimentos", color = 0xFF7E57C2.toInt(), icon = "trending_up", isDefault = true),
+                        Category(name = "Rendimentos", color = 0xFF4CAF50.toInt(), icon = "trending_up", isDefault = true)
                     )
                     initialCategories.forEach { dao.insertCategory(it) }
                 }

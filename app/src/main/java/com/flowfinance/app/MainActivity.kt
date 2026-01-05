@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +36,8 @@ import androidx.navigation.compose.rememberNavController
 import com.flowfinance.app.ui.components.AddTransactionSheet
 import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
+import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
+import com.flowfinance.app.ui.screens.panel.PanelScreen
 import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
 import com.flowfinance.app.ui.screens.planning.PlanningScreen
 import com.flowfinance.app.ui.screens.settings.SettingsScreen
@@ -65,19 +69,22 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     bottomBar = {
-                        if (currentRoute != Screen.UserProfile.route && currentRoute != Screen.ManageBudgets.route) {
+                        if (currentRoute != Screen.UserProfile.route && 
+                            currentRoute != Screen.ManageBudgets.route &&
+                            currentRoute != Screen.FinancialFlow.route) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
                                 val screens = listOf(
                                     Screen.Dashboard,
                                     Screen.Transactions,
                                     Screen.Planning,
+                                    Screen.Panel,
                                     Screen.Settings
                                 )
                                 screens.forEach { screen ->
                                     NavigationBarItem(
-                                        icon = { Icon(screen.icon, contentDescription = null) },
-                                        label = { Text(screen.title) },
+                                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                        label = null, // Removed labels for all items
                                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                                         onClick = {
                                             navController.navigate(screen.route) {
@@ -138,6 +145,11 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.Planning.route) {
                                 PlanningScreen()
                             }
+                            composable(Screen.Panel.route) {
+                                PanelScreen(onNavigateToFinancialFlow = {
+                                    navController.navigate(Screen.FinancialFlow.route)
+                                })
+                            }
                             composable(Screen.Settings.route) {
                                 SettingsScreen(
                                     onProfileClick = { navController.navigate(Screen.UserProfile.route) }
@@ -148,6 +160,9 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.ManageBudgets.route) {
                                 ManageBudgetsScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(Screen.FinancialFlow.route) {
+                                FinancialFlowScreen(onBackClick = { navController.popBackStack() })
                             }
                         }
                     }

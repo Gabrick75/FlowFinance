@@ -26,12 +26,12 @@ class AddTransactionViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val expenseCategories: StateFlow<List<Category>> = allCategories.map {
-        it.filter { category -> category.name != "Salário" }
+        it.filter { category -> category.name != "Salário" && category.name != "Rendimentos" }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val incomeCategories: StateFlow<List<Category>> = allCategories.map {
         it.filter { category ->
-            category.name == "Salário" || category.name == "Investimentos" || !category.isDefault
+            category.name == "Salário" || category.name == "Investimentos" || category.name == "Rendimentos" || !category.isDefault
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 

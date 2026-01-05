@@ -29,6 +29,7 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.screens.dashboard.TransactionItem
 import com.flowfinance.app.util.formatCurrency
 import com.flowfinance.app.ui.viewmodel.TransactionsViewModel
@@ -57,35 +59,47 @@ fun TransactionsScreen(
 
     Scaffold(
         topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(onClick = { viewModel.previousMonth() }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
-                            }
-                            Text(
-                                text = uiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("pt", "BR")))
-                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            IconButton(onClick = { viewModel.nextMonth() }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
-                            }
-                        }
-                    }
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            ) {
+                Text(
+                    text = "Histórico",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
                 )
+                Text(
+                    text = "Visualize e gerencie suas transações.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                // Month Navigation
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { viewModel.previousMonth() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
+                    }
+                    Text(
+                        text = uiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("pt", "BR")))
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    IconButton(onClick = { viewModel.nextMonth() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
+                    }
+                }
                 // Search Bar
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(bottom = 8.dp),
                     placeholder = { Text("Buscar transação...") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true
