@@ -109,22 +109,26 @@ fun FullScreenChartScreen(
                             "overview" -> GeneralOverviewChart(
                                 data = uiState.monthlyData,
                                 currency = uiState.currency,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                showTooltip = true
                             )
                             "salary" -> SalaryBarChart(
                                 data = uiState.monthlyData,
                                 currency = uiState.currency,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                showTooltip = true
                             )
                             "yield" -> YieldAreaChart(
                                 data = uiState.monthlyData,
                                 currency = uiState.currency,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                showTooltip = true
                             )
                             "combined" -> CombinedChart(
                                 data = uiState.monthlyData,
                                 currency = uiState.currency,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                showTooltip = true
                             )
                         }
                     }
