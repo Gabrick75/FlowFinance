@@ -38,6 +38,7 @@ import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
+import com.flowfinance.app.ui.screens.panel.SheetScreen
 import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
 import com.flowfinance.app.ui.screens.planning.PlanningScreen
 import com.flowfinance.app.ui.screens.settings.SettingsScreen
@@ -71,7 +72,8 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         if (currentRoute != Screen.UserProfile.route && 
                             currentRoute != Screen.ManageBudgets.route &&
-                            currentRoute != Screen.FinancialFlow.route) {
+                            currentRoute != Screen.FinancialFlow.route &&
+                            currentRoute != Screen.Sheet.route) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
                                 val screens = listOf(
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity() {
                                 screens.forEach { screen ->
                                     NavigationBarItem(
                                         icon = { Icon(screen.icon, contentDescription = screen.title) },
-                                        label = null, // Removed labels for all items
+                                        label = null,
                                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                                         onClick = {
                                             navController.navigate(screen.route) {
@@ -162,7 +164,13 @@ class MainActivity : ComponentActivity() {
                                 ManageBudgetsScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(Screen.FinancialFlow.route) {
-                                FinancialFlowScreen(onBackClick = { navController.popBackStack() })
+                                FinancialFlowScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    onShowSheetClick = { navController.navigate(Screen.Sheet.route) }
+                                )
+                            }
+                            composable(Screen.Sheet.route) {
+                                SheetScreen(onBackClick = { navController.popBackStack() })
                             }
                         }
                     }

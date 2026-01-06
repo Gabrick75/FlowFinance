@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -21,4 +22,5 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object UserProfile : Screen("user_profile", "Perfil", Icons.Default.Settings)
     object ManageBudgets : Screen("manage_budgets", "Gerenciar Metas", Icons.Default.Edit)
     object FinancialFlow : Screen("financial_flow", "Fluxo Financeiro", Icons.Default.Timeline)
+    object Sheet : Screen("sheet", "Planilha", Icons.Default.TableChart)
 }
