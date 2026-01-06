@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -66,6 +69,9 @@ fun GeneralOverviewChart(
     
     var selectedPoint by remember { mutableStateOf<Pair<Int, Offset>?>(null) }
     var chartSize by remember { mutableStateOf(Size.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    
     val density = LocalDensity.current
     val leftPadding = with(density) { 60.dp.toPx() }
 
@@ -76,8 +82,21 @@ fun GeneralOverviewChart(
                 .onSizeChanged { chartSize = it.toSize() }
                 .pointerInput(Unit) {
                     if (showTooltip) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            val oldScale = scale
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            val chartWidth = chartSize.width - leftPadding
+                            val maxScroll = (chartWidth * scale) - chartWidth
+                            // Adjust offset to keep relative position or just clamp
+                            // Simple clamp logic
+                            offsetX = (offsetX + pan.x).coerceIn(-maxScroll, 0f)
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    if (showTooltip) {
                         detectTapGestures { offset ->
-                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size)
+                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size, scale, offsetX)
                             selectedPoint = if (index != null && (selectedPoint?.first != index)) {
                                 index to offset
                             } else {
@@ -91,30 +110,32 @@ fun GeneralOverviewChart(
             val chartWidth = size.width - leftPadding
             val chartHeight = size.height - bottomPadding
 
-            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency, scale, offsetX)
 
-            fun drawLineChart(values: List<Float>, color: Color) {
-                if (values.size < 2) return
-                val path = Path()
-                val stepX = chartWidth / data.size
-                
-                val startX = leftPadding + stepX / 2
-                val startY = chartHeight - (values[0] / maxVal * chartHeight)
-                path.moveTo(startX, startY)
-                
-                for (i in 1 until values.size) {
-                    val x = leftPadding + i * stepX + stepX / 2
-                    val y = chartHeight - (values[i] / maxVal * chartHeight)
-                    path.lineTo(x, y)
+            clipRect(left = leftPadding, top = 0f, right = size.width, bottom = chartHeight) {
+                fun drawLineChart(values: List<Float>, color: Color) {
+                    if (values.size < 2) return
+                    val path = Path()
+                    val stepX = (chartWidth / data.size) * scale
+                    
+                    val startX = leftPadding + offsetX + stepX / 2
+                    val startY = chartHeight - (values[0] / maxVal * chartHeight)
+                    path.moveTo(startX, startY)
+                    
+                    for (i in 1 until values.size) {
+                        val x = leftPadding + offsetX + i * stepX + stepX / 2
+                        val y = chartHeight - (values[i] / maxVal * chartHeight)
+                        path.lineTo(x, y)
+                    }
+                    drawPath(path, color, style = Stroke(width = 3.dp.toPx()))
                 }
-                drawPath(path, color, style = Stroke(width = 3.dp.toPx()))
-            }
 
-            drawLineChart(data.map { it.salary.toFloat() }, ColorSalary)
-            drawLineChart(data.map { it.monthlyYield.toFloat() }, ColorYield)
-            drawLineChart(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
-            drawLineChart(data.map { it.accumulatedBalance.toFloat() }, ColorBalance)
-            drawLineChart(data.map { it.totalWealth.toFloat() }, ColorWealth)
+                drawLineChart(data.map { it.salary.toFloat() }, ColorSalary)
+                drawLineChart(data.map { it.monthlyYield.toFloat() }, ColorYield)
+                drawLineChart(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
+                drawLineChart(data.map { it.accumulatedBalance.toFloat() }, ColorBalance)
+                drawLineChart(data.map { it.totalWealth.toFloat() }, ColorWealth)
+            }
         }
         
         if (selectedPoint != null && showTooltip) {
@@ -124,20 +145,23 @@ fun GeneralOverviewChart(
             val dateStr = item.yearMonth.format(dateFormatter)
             
             val chartWidth = chartSize.width - leftPadding
-            val stepX = chartWidth / data.size
-            val xPos = leftPadding + index * stepX + stepX / 2
+            val stepX = (chartWidth / data.size) * scale
+            val xPos = leftPadding + offsetX + index * stepX + stepX / 2
             
-            ChartTooltip(
-                title = dateStr,
-                content = {
-                    Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
-                    Text("Rend. Mês: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                    Text("Saldo Acum.: ${formatCurrency(item.accumulatedBalance, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorBalance)
-                },
-                targetPosition = Offset(xPos, tapOffset.y),
-                containerSize = chartSize,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
+            // Hide tooltip if point is out of view? Or just let it clamp
+            if (xPos >= leftPadding && xPos <= chartSize.width) {
+                ChartTooltip(
+                    title = dateStr,
+                    content = {
+                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                        Text("Rend. Mês: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("Saldo Acum.: ${formatCurrency(item.accumulatedBalance, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorBalance)
+                    },
+                    targetPosition = Offset(xPos, tapOffset.y),
+                    containerSize = chartSize,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            }
         }
     }
 }
@@ -155,6 +179,8 @@ fun SalaryBarChart(
     
     var selectedPoint by remember { mutableStateOf<Pair<Int, Offset>?>(null) }
     var chartSize by remember { mutableStateOf(Size.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
     val leftPadding = with(density) { 60.dp.toPx() }
 
@@ -165,8 +191,18 @@ fun SalaryBarChart(
                 .onSizeChanged { chartSize = it.toSize() }
                 .pointerInput(Unit) {
                     if (showTooltip) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            val chartWidth = chartSize.width - leftPadding
+                            val maxScroll = (chartWidth * scale) - chartWidth
+                            offsetX = (offsetX + pan.x).coerceIn(-maxScroll, 0f)
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    if (showTooltip) {
                         detectTapGestures { offset ->
-                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size)
+                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size, scale, offsetX)
                             selectedPoint = if (index != null && (selectedPoint?.first != index)) {
                                 index to offset
                             } else {
@@ -180,31 +216,33 @@ fun SalaryBarChart(
             val chartWidth = size.width - leftPadding
             val chartHeight = size.height - bottomPadding
 
-            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency, scale, offsetX)
 
-            val stepX = chartWidth / data.size
-            val barWidth = stepX * 0.6f
+            clipRect(left = leftPadding, top = 0f, right = size.width, bottom = chartHeight) {
+                val stepX = (chartWidth / data.size) * scale
+                val barWidth = stepX * 0.6f
 
-            data.forEachIndexed { index, item ->
-                val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
-                val x = leftPadding + index * stepX + (stepX - barWidth) / 2
-                val y = chartHeight - barHeight
-                
-                drawRect(
-                    color = ColorSalary,
-                    topLeft = Offset(x, y),
-                    size = Size(barWidth, barHeight)
-                )
-                
-                val textResult = textMeasurer.measure(
-                    text = formatCurrency(item.salary, currency),
-                    style = TextStyle(fontSize = 9.sp, color = Color.Gray)
-                )
-                if (y - textResult.size.height > 0) {
-                     drawText(
-                        textLayoutResult = textResult,
-                        topLeft = Offset(x + (barWidth - textResult.size.width)/2, y - textResult.size.height - 2.dp.toPx())
+                data.forEachIndexed { index, item ->
+                    val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
+                    val x = leftPadding + offsetX + index * stepX + (stepX - barWidth) / 2
+                    val y = chartHeight - barHeight
+                    
+                    drawRect(
+                        color = ColorSalary,
+                        topLeft = Offset(x, y),
+                        size = Size(barWidth, barHeight)
                     )
+                    
+                    val textResult = textMeasurer.measure(
+                        text = formatCurrency(item.salary, currency),
+                        style = TextStyle(fontSize = 9.sp, color = Color.Gray)
+                    )
+                    if (y - textResult.size.height > 0) {
+                         drawText(
+                            textLayoutResult = textResult,
+                            topLeft = Offset(x + (barWidth - textResult.size.width)/2, y - textResult.size.height - 2.dp.toPx())
+                        )
+                    }
                 }
             }
         }
@@ -215,18 +253,20 @@ fun SalaryBarChart(
             val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
             
             val chartWidth = chartSize.width - leftPadding
-            val stepX = chartWidth / data.size
-            val xPos = leftPadding + index * stepX + stepX / 2
+            val stepX = (chartWidth / data.size) * scale
+            val xPos = leftPadding + offsetX + index * stepX + stepX / 2
             
-            ChartTooltip(
-                title = item.yearMonth.format(dateFormatter),
-                content = {
-                    Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
-                },
-                targetPosition = Offset(xPos, tapOffset.y),
-                containerSize = chartSize,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
+            if (xPos >= leftPadding && xPos <= chartSize.width) {
+                ChartTooltip(
+                    title = item.yearMonth.format(dateFormatter),
+                    content = {
+                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                    },
+                    targetPosition = Offset(xPos, tapOffset.y),
+                    containerSize = chartSize,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            }
         }
     }
 }
@@ -244,6 +284,8 @@ fun YieldAreaChart(
     
     var selectedPoint by remember { mutableStateOf<Pair<Int, Offset>?>(null) }
     var chartSize by remember { mutableStateOf(Size.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
     val leftPadding = with(density) { 60.dp.toPx() }
 
@@ -254,8 +296,18 @@ fun YieldAreaChart(
                 .onSizeChanged { chartSize = it.toSize() }
                 .pointerInput(Unit) {
                     if (showTooltip) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            val chartWidth = chartSize.width - leftPadding
+                            val maxScroll = (chartWidth * scale) - chartWidth
+                            offsetX = (offsetX + pan.x).coerceIn(-maxScroll, 0f)
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    if (showTooltip) {
                         detectTapGestures { offset ->
-                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size)
+                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size, scale, offsetX)
                             selectedPoint = if (index != null && (selectedPoint?.first != index)) {
                                 index to offset
                             } else {
@@ -269,49 +321,51 @@ fun YieldAreaChart(
             val chartWidth = size.width - leftPadding
             val chartHeight = size.height - bottomPadding
 
-            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency, scale, offsetX)
 
-            val stepX = chartWidth / data.size
+            clipRect(left = leftPadding, top = 0f, right = size.width, bottom = chartHeight) {
+                val stepX = (chartWidth / data.size) * scale
 
-            fun drawArea(values: List<Float>, color: Color) {
-                val path = Path()
-                
-                val startX = leftPadding + stepX / 2
-                path.moveTo(startX, chartHeight)
-                
-                values.forEachIndexed { index, value ->
-                    val x = leftPadding + index * stepX + stepX / 2
-                    val y = chartHeight - (value / maxVal * chartHeight)
-                    path.lineTo(x, y)
-                }
-                
-                val endX = leftPadding + (values.size - 1) * stepX + stepX / 2
-                path.lineTo(endX, chartHeight)
-                
-                path.close()
-                
-                drawPath(
-                    path = path,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(color.copy(alpha = 0.5f), color.copy(alpha = 0.1f)),
-                        startY = 0f,
-                        endY = chartHeight
+                fun drawArea(values: List<Float>, color: Color) {
+                    val path = Path()
+                    
+                    val startX = leftPadding + offsetX + stepX / 2
+                    path.moveTo(startX, chartHeight)
+                    
+                    values.forEachIndexed { index, value ->
+                        val x = leftPadding + offsetX + index * stepX + stepX / 2
+                        val y = chartHeight - (value / maxVal * chartHeight)
+                        path.lineTo(x, y)
+                    }
+                    
+                    val endX = leftPadding + offsetX + (values.size - 1) * stepX + stepX / 2
+                    path.lineTo(endX, chartHeight)
+                    
+                    path.close()
+                    
+                    drawPath(
+                        path = path,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(color.copy(alpha = 0.5f), color.copy(alpha = 0.1f)),
+                            startY = 0f,
+                            endY = chartHeight
+                        )
                     )
-                )
-                
-                val linePath = Path()
-                linePath.moveTo(startX, chartHeight - (values[0] / maxVal * chartHeight))
-                
-                for(i in 1 until values.size) {
-                    val x = leftPadding + i * stepX + stepX / 2
-                    val y = chartHeight - (values[i] / maxVal * chartHeight)
-                    linePath.lineTo(x, y)
+                    
+                    val linePath = Path()
+                    linePath.moveTo(startX, chartHeight - (values[0] / maxVal * chartHeight))
+                    
+                    for(i in 1 until values.size) {
+                        val x = leftPadding + offsetX + i * stepX + stepX / 2
+                        val y = chartHeight - (values[i] / maxVal * chartHeight)
+                        linePath.lineTo(x, y)
+                    }
+                    drawPath(linePath, color, style = Stroke(2.dp.toPx()))
                 }
-                drawPath(linePath, color, style = Stroke(2.dp.toPx()))
-            }
 
-            drawArea(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
-            drawArea(data.map { it.monthlyYield.toFloat() }, ColorYield)
+                drawArea(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
+                drawArea(data.map { it.monthlyYield.toFloat() }, ColorYield)
+            }
         }
         
         if (selectedPoint != null && showTooltip) {
@@ -320,19 +374,21 @@ fun YieldAreaChart(
             val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
             
             val chartWidth = chartSize.width - leftPadding
-            val stepX = chartWidth / data.size
-            val xPos = leftPadding + index * stepX + stepX / 2
+            val stepX = (chartWidth / data.size) * scale
+            val xPos = leftPadding + offsetX + index * stepX + stepX / 2
             
-            ChartTooltip(
-                title = item.yearMonth.format(dateFormatter),
-                content = {
-                    Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                    Text("Rend. Acum: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
-                },
-                targetPosition = Offset(xPos, tapOffset.y),
-                containerSize = chartSize,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
+            if (xPos >= leftPadding && xPos <= chartSize.width) {
+                ChartTooltip(
+                    title = item.yearMonth.format(dateFormatter),
+                    content = {
+                        Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("Rend. Acum: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
+                    },
+                    targetPosition = Offset(xPos, tapOffset.y),
+                    containerSize = chartSize,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            }
         }
     }
 }
@@ -350,6 +406,8 @@ fun CombinedChart(
     
     var selectedPoint by remember { mutableStateOf<Pair<Int, Offset>?>(null) }
     var chartSize by remember { mutableStateOf(Size.Zero) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
     val leftPadding = with(density) { 60.dp.toPx() }
 
@@ -360,8 +418,18 @@ fun CombinedChart(
                 .onSizeChanged { chartSize = it.toSize() }
                 .pointerInput(Unit) {
                     if (showTooltip) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            val chartWidth = chartSize.width - leftPadding
+                            val maxScroll = (chartWidth * scale) - chartWidth
+                            offsetX = (offsetX + pan.x).coerceIn(-maxScroll, 0f)
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    if (showTooltip) {
                         detectTapGestures { offset ->
-                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size)
+                            val index = getIndexFromTap(offset, chartSize.width, leftPadding, data.size, scale, offsetX)
                             selectedPoint = if (index != null && (selectedPoint?.first != index)) {
                                 index to offset
                             } else {
@@ -375,41 +443,43 @@ fun CombinedChart(
             val chartWidth = size.width - leftPadding
             val chartHeight = size.height - bottomPadding
 
-            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+            drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency, scale, offsetX)
 
-            val stepX = chartWidth / data.size
-            val barWidth = stepX * 0.4f
+            clipRect(left = leftPadding, top = 0f, right = size.width, bottom = chartHeight) {
+                val stepX = (chartWidth / data.size) * scale
+                val barWidth = stepX * 0.4f
 
-            data.forEachIndexed { index, item ->
-                val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
-                val x = leftPadding + index * stepX + (stepX - barWidth) / 2
-                val y = chartHeight - barHeight
-                
-                drawRect(
-                    color = ColorSalary,
-                    topLeft = Offset(x, y),
-                    size = Size(barWidth, barHeight)
-                )
-            }
-
-            fun drawLine(values: List<Float>, color: Color) {
-                if(values.size < 2) return
-                val path = Path()
-                
-                val startX = leftPadding + stepX / 2
-                val startY = chartHeight - (values[0] / maxVal * chartHeight)
-                path.moveTo(startX, startY)
-                
-                for(i in 1 until values.size) {
-                    val x = leftPadding + i * stepX + stepX / 2
-                    val y = chartHeight - (values[i] / maxVal * chartHeight)
-                    path.lineTo(x, y)
+                data.forEachIndexed { index, item ->
+                    val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
+                    val x = leftPadding + offsetX + index * stepX + (stepX - barWidth) / 2
+                    val y = chartHeight - barHeight
+                    
+                    drawRect(
+                        color = ColorSalary,
+                        topLeft = Offset(x, y),
+                        size = Size(barWidth, barHeight)
+                    )
                 }
-                drawPath(path, color, style = Stroke(3.dp.toPx()))
-            }
 
-            drawLine(data.map { it.monthlyYield.toFloat() }, ColorYield)
-            drawLine(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
+                fun drawLine(values: List<Float>, color: Color) {
+                    if(values.size < 2) return
+                    val path = Path()
+                    
+                    val startX = leftPadding + offsetX + stepX / 2
+                    val startY = chartHeight - (values[0] / maxVal * chartHeight)
+                    path.moveTo(startX, startY)
+                    
+                    for(i in 1 until values.size) {
+                        val x = leftPadding + offsetX + i * stepX + stepX / 2
+                        val y = chartHeight - (values[i] / maxVal * chartHeight)
+                        path.lineTo(x, y)
+                    }
+                    drawPath(path, color, style = Stroke(3.dp.toPx()))
+                }
+
+                drawLine(data.map { it.monthlyYield.toFloat() }, ColorYield)
+                drawLine(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
+            }
         }
         
         if (selectedPoint != null && showTooltip) {
@@ -418,19 +488,22 @@ fun CombinedChart(
             val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
             
             val chartWidth = chartSize.width - leftPadding
-            val stepX = chartWidth / data.size
-            val xPos = leftPadding + index * stepX + stepX / 2
+            val stepX = (chartWidth / data.size) * scale
+            val xPos = leftPadding + offsetX + index * stepX + stepX / 2
             
-            ChartTooltip(
-                title = item.yearMonth.format(dateFormatter),
-                content = {
-                    Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
-                    Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                },
-                targetPosition = Offset(xPos, tapOffset.y),
-                containerSize = chartSize,
-                modifier = Modifier.align(Alignment.TopStart)
-            )
+            if (xPos >= leftPadding && xPos <= chartSize.width) {
+                ChartTooltip(
+                    title = item.yearMonth.format(dateFormatter),
+                    content = {
+                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                        Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("Rend. Acum.: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
+                    },
+                    targetPosition = Offset(xPos, tapOffset.y),
+                    containerSize = chartSize,
+                    modifier = Modifier.align(Alignment.TopStart)
+                )
+            }
         }
     }
 }
@@ -441,7 +514,9 @@ private fun DrawScope.drawStandardChartGrid(
     data: List<MonthlyFinancialData>,
     leftPadding: Float,
     bottomPadding: Float,
-    currency: String
+    currency: String,
+    scale: Float = 1f,
+    offsetX: Float = 0f
 ) {
     val chartWidth = size.width - leftPadding
     val chartHeight = size.height - bottomPadding
@@ -459,7 +534,7 @@ private fun DrawScope.drawStandardChartGrid(
         )
         
         val textResult = textMeasurer.measure(
-            text = formatCurrency(value.toDouble(), currency).substringBefore(","),
+            text = formatCurrency(value.toDouble(), currency, 0),
             style = TextStyle(fontSize = 9.sp, color = Color.Gray)
         )
         drawText(
@@ -469,31 +544,44 @@ private fun DrawScope.drawStandardChartGrid(
     }
     
     val dateFormatter = DateTimeFormatter.ofPattern("MMM", Locale("pt", "BR"))
-    val stepX = chartWidth / data.size
+    val stepX = (chartWidth / data.size) * scale
     
-    data.forEachIndexed { index, item ->
-        val x = leftPadding + index * stepX + stepX / 2
-        
-        val textResult = textMeasurer.measure(
-            text = item.yearMonth.format(dateFormatter),
-            style = TextStyle(fontSize = 10.sp, color = Color.Gray)
-        )
-        
-        drawText(
-            textLayoutResult = textResult,
-            topLeft = Offset(x - textResult.size.width / 2, chartHeight + 4.dp.toPx())
-        )
+    clipRect(left = leftPadding, top = 0f, right = size.width, bottom = size.height) {
+        data.forEachIndexed { index, item ->
+            val x = leftPadding + offsetX + index * stepX + stepX / 2
+            
+            // Only draw if visible (simple optimization)
+            if (x >= leftPadding - 20 && x <= size.width + 20) {
+                val textResult = textMeasurer.measure(
+                    text = item.yearMonth.format(dateFormatter),
+                    style = TextStyle(fontSize = 10.sp, color = Color.Gray)
+                )
+                
+                drawText(
+                    textLayoutResult = textResult,
+                    topLeft = Offset(x - textResult.size.width / 2, chartHeight + 4.dp.toPx())
+                )
+            }
+        }
     }
 }
 
-private fun getIndexFromTap(offset: Offset, chartWidth: Float, leftPadding: Float, dataSize: Int): Int? {
+private fun getIndexFromTap(offset: Offset, chartWidth: Float, leftPadding: Float, dataSize: Int, scale: Float = 1f, offsetX: Float = 0f): Int? {
     if (dataSize == 0) return null
     if (offset.x < leftPadding) return null
     
     val width = chartWidth - leftPadding
-    val stepX = width / dataSize
+    val stepX = (width / dataSize) * scale
     
-    val index = ((offset.x - leftPadding) / stepX).toInt()
+    // x = leftPadding + offsetX + index * stepX + stepX/2
+    // We want to find index such that the tap is within the slot?
+    // Actually, each slot is stepX wide.
+    // x_start = leftPadding + offsetX + index * stepX
+    // x_end = x_start + stepX
+    
+    // offset.x - leftPadding - offsetX = index * stepX + relative_in_slot
+    
+    val index = ((offset.x - leftPadding - offsetX) / stepX).toInt()
     return if (index in 0 until dataSize) index else null
 }
 

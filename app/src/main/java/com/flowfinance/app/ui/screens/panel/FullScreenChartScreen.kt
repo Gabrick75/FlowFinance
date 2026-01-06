@@ -1,5 +1,7 @@
 package com.flowfinance.app.ui.screens.panel
 
+import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,12 +31,22 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.applyCanvas
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.ui.components.ColorAccYield
 import com.flowfinance.app.ui.components.ColorBalance
@@ -45,6 +58,8 @@ import com.flowfinance.app.ui.components.GeneralOverviewChart
 import com.flowfinance.app.ui.components.SalaryBarChart
 import com.flowfinance.app.ui.components.YieldAreaChart
 import com.flowfinance.app.ui.viewmodel.FinancialFlowViewModel
+import com.flowfinance.app.util.saveBitmapToFile
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +69,12 @@ fun FullScreenChartScreen(
     viewModel: FinancialFlowViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val view = LocalView.current
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     
+    var captureRect by remember { mutableStateOf<Rect?>(null) }
+
     val chartTitle = when (chartType) {
         "overview" -> "Visualização Geral"
         "salary" -> "Salário"
@@ -76,6 +96,36 @@ fun FullScreenChartScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { 
+                        coroutineScope.launch {
+                            val rect = captureRect ?: return@launch
+                            
+                            val bitmap = Bitmap.createBitmap(
+                                view.width,
+                                view.height,
+                                Bitmap.Config.ARGB_8888
+                            ).applyCanvas { 
+                                view.draw(this)
+                            }
+
+                            val croppedBitmap = Bitmap.createBitmap(
+                                bitmap,
+                                rect.left.toInt(),
+                                rect.top.toInt(),
+                                rect.width.toInt(),
+                                rect.height.toInt()
+                            )
+                            
+                            val success = saveBitmapToFile(context, croppedBitmap, "chart_${System.currentTimeMillis()}.png")
+                            
+                            val message = if (success) "Gráfico salvo com sucesso!" else "Falha ao salvar gráfico."
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        }
+                    }) {
+                        Icon(Icons.Default.Download, contentDescription = "Baixar Gráfico")
                     }
                 }
             )
@@ -104,6 +154,9 @@ fun FullScreenChartScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
+                            .onGloballyPositioned { layoutCoordinates ->
+                                captureRect = layoutCoordinates.boundsInWindow()
+                            }
                     ) {
                         when (chartType) {
                             "overview" -> GeneralOverviewChart(
