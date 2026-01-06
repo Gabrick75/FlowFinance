@@ -88,7 +88,6 @@ fun FullScreenChartScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Card para Legenda e Gráfico
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(16.dp),
@@ -100,12 +99,7 @@ fun FullScreenChartScreen(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Legenda no topo do Card
-                    ChartLegend(chartType)
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    // Gráfico ocupando o resto do espaço
+                    // Gráfico ocupando a maior parte do espaço
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -130,6 +124,11 @@ fun FullScreenChartScreen(
                             )
                         }
                     }
+                    
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Legenda na parte inferior
+                    ChartLegend(chartType)
                 }
             }
         }

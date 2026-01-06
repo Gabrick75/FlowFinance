@@ -15,13 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,9 +29,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,7 +39,6 @@ import com.flowfinance.app.ui.components.CombinedChart
 import com.flowfinance.app.ui.components.GeneralOverviewChart
 import com.flowfinance.app.ui.components.SalaryBarChart
 import com.flowfinance.app.ui.components.YieldAreaChart
-import com.flowfinance.app.ui.screens.settings.shareFile
 import com.flowfinance.app.ui.viewmodel.FinancialFlowViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +51,6 @@ fun FinancialFlowScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -73,29 +65,6 @@ fun FinancialFlowScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Opções")
-                    }
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Baixar CSV") },
-                            onClick = {
-                                showMenu = false
-                                viewModel.exportSheetToCsv { path ->
-                                    if (path != null) {
-                                        shareFile(context, path)
-                                    } else {
-                                        Toast.makeText(context, "Erro ao exportar", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-                        )
                     }
                 }
             )
