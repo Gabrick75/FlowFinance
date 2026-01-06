@@ -24,6 +24,8 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object ManageBudgets : Screen("manage_budgets", "Gerenciar Metas", Icons.Default.Edit)
     object FinancialFlow : Screen("financial_flow", "Fluxo Financeiro", Icons.Default.Timeline)
     object Sheet : Screen("sheet", "Planilha", Icons.Default.TableChart)
+    object CategoryTrends : Screen("category_trends", "Tendência por Categoria", Icons.Default.Timeline)
+    object CategoryTrendsSheet : Screen("category_trends_sheet", "Planilha de Tendências", Icons.Default.TableChart)
     
     // Rota com argumento: "chart_detail/{chartType}"
     object ChartDetail : Screen("chart_detail/{chartType}", "Detalhe do Gráfico", Icons.Default.ShowChart) {

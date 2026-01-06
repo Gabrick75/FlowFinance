@@ -35,6 +35,8 @@ import androidx.navigation.navArgument
 import com.flowfinance.app.ui.components.AddTransactionSheet
 import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
+import com.flowfinance.app.ui.screens.panel.CategoryTrendsScreen
+import com.flowfinance.app.ui.screens.panel.CategoryTrendsSheetScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
 import com.flowfinance.app.ui.screens.panel.FullScreenChartScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
@@ -74,6 +76,8 @@ class MainActivity : ComponentActivity() {
                             currentRoute != Screen.ManageBudgets.route &&
                             currentRoute != Screen.FinancialFlow.route &&
                             currentRoute != Screen.Sheet.route &&
+                            currentRoute != Screen.CategoryTrends.route &&
+                            currentRoute != Screen.CategoryTrendsSheet.route &&
                             currentRoute?.startsWith("chart_detail") != true) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
@@ -149,9 +153,10 @@ class MainActivity : ComponentActivity() {
                                 PlanningScreen()
                             }
                             composable(Screen.Panel.route) {
-                                PanelScreen(onNavigateToFinancialFlow = {
-                                    navController.navigate(Screen.FinancialFlow.route)
-                                })
+                                PanelScreen(
+                                    onNavigateToFinancialFlow = { navController.navigate(Screen.FinancialFlow.route) },
+                                    onNavigateToPatternsAnalysis = { navController.navigate(Screen.CategoryTrends.route) }
+                                )
                             }
                             composable(Screen.Settings.route) {
                                 SettingsScreen(
@@ -175,6 +180,15 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Sheet.route) {
                                 SheetScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(Screen.CategoryTrends.route) {
+                                CategoryTrendsScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    onShowSheetClick = { navController.navigate(Screen.CategoryTrendsSheet.route) }
+                                )
+                            }
+                            composable(Screen.CategoryTrendsSheet.route) {
+                                CategoryTrendsSheetScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(
                                 route = Screen.ChartDetail.route,
