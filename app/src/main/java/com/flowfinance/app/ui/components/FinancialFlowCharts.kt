@@ -87,8 +87,6 @@ fun GeneralOverviewChart(
                             scale = (scale * zoom).coerceIn(1f, 5f)
                             val chartWidth = chartSize.width - leftPadding
                             val maxScroll = (chartWidth * scale) - chartWidth
-                            // Adjust offset to keep relative position or just clamp
-                            // Simple clamp logic
                             offsetX = (offsetX + pan.x).coerceIn(-maxScroll, 0f)
                         }
                     }
@@ -148,14 +146,15 @@ fun GeneralOverviewChart(
             val stepX = (chartWidth / data.size) * scale
             val xPos = leftPadding + offsetX + index * stepX + stepX / 2
             
-            // Hide tooltip if point is out of view? Or just let it clamp
             if (xPos >= leftPadding && xPos <= chartSize.width) {
                 ChartTooltip(
                     title = dateStr,
                     content = {
                         Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
                         Text("Rend. Mês: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("Rend. Acum.: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
                         Text("Saldo Acum.: ${formatCurrency(item.accumulatedBalance, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorBalance)
+                        Text("Patrimônio: ${formatCurrency(item.totalWealth, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorWealth)
                     },
                     targetPosition = Offset(xPos, tapOffset.y),
                     containerSize = chartSize,
@@ -572,14 +571,6 @@ private fun getIndexFromTap(offset: Offset, chartWidth: Float, leftPadding: Floa
     
     val width = chartWidth - leftPadding
     val stepX = (width / dataSize) * scale
-    
-    // x = leftPadding + offsetX + index * stepX + stepX/2
-    // We want to find index such that the tap is within the slot?
-    // Actually, each slot is stepX wide.
-    // x_start = leftPadding + offsetX + index * stepX
-    // x_end = x_start + stepX
-    
-    // offset.x - leftPadding - offsetX = index * stepX + relative_in_slot
     
     val index = ((offset.x - leftPadding - offsetX) / stepX).toInt()
     return if (index in 0 until dataSize) index else null
