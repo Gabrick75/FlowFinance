@@ -72,7 +72,10 @@ fun SettingsScreen(
 
     if (showDeleteDialog) {
         AlertDialog(
-            onDismissRequest = {},
+            onDismissRequest = { 
+                showDeleteDialog = false 
+                deleteConfirmationText = ""
+            },
             title = { Text("Atenção: Apagar Tudo") },
             text = {
                 Column {
@@ -94,6 +97,8 @@ fun SettingsScreen(
                     onClick = {
                         viewModel.clearAllData()
                         Toast.makeText(context, "Dados apagados com sucesso.", Toast.LENGTH_SHORT).show()
+                        showDeleteDialog = false
+                        deleteConfirmationText = ""
                     },
                     enabled = deleteConfirmationText.equals(CONFIRMATION_PHRASE, ignoreCase = true),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
@@ -103,6 +108,8 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { 
+                    showDeleteDialog = false
+                    deleteConfirmationText = ""
                 }) {
                     Text("Cancelar")
                 }
@@ -166,7 +173,7 @@ fun SettingsScreen(
                 icon = Icons.Default.Delete,
                 title = "Limpar Dados",
                 subtitle = "Apagar todas as transações",
-                onClick = {}
+                onClick = { showDeleteDialog = true }
             )
         }
 

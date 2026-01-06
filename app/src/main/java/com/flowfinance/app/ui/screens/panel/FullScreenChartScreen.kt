@@ -88,7 +88,7 @@ fun FullScreenChartScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        chartTitle, 
+                        "Detalhes do Gráfico", 
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
@@ -141,7 +141,11 @@ fun FullScreenChartScreen(
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned { layoutCoordinates ->
+                        captureRect = layoutCoordinates.boundsInWindow()
+                    }
             ) {
                 Column(
                     modifier = Modifier
@@ -149,14 +153,18 @@ fun FullScreenChartScreen(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Text(
+                        chartTitle, 
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
                     // Gráfico ocupando a maior parte do espaço
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .onGloballyPositioned { layoutCoordinates ->
-                                captureRect = layoutCoordinates.boundsInWindow()
-                            }
                     ) {
                         when (chartType) {
                             "overview" -> GeneralOverviewChart(
