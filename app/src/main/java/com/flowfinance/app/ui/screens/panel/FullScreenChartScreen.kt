@@ -108,18 +108,22 @@ fun FullScreenChartScreen(
                         when (chartType) {
                             "overview" -> GeneralOverviewChart(
                                 data = uiState.monthlyData,
+                                currency = uiState.currency,
                                 modifier = Modifier.fillMaxSize()
                             )
                             "salary" -> SalaryBarChart(
                                 data = uiState.monthlyData,
+                                currency = uiState.currency,
                                 modifier = Modifier.fillMaxSize()
                             )
                             "yield" -> YieldAreaChart(
                                 data = uiState.monthlyData,
+                                currency = uiState.currency,
                                 modifier = Modifier.fillMaxSize()
                             )
                             "combined" -> CombinedChart(
                                 data = uiState.monthlyData,
+                                currency = uiState.currency,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
@@ -146,26 +150,26 @@ fun ChartLegend(chartType: String) {
             "overview" -> {
                 Column {
                     LegendItem(ColorSalary, "Salário")
-                    LegendItem(ColorYield, "Rend. Mensal")
-                    LegendItem(ColorAccYield, "Rend. Acum.")
+                    LegendItem(ColorYield, "Rendimento Mensal")
+                    LegendItem(ColorAccYield, "Rendimento Acumulado")
                 }
                 Column {
-                    LegendItem(ColorBalance, "Saldo Acum.")
+                    LegendItem(ColorBalance, "Saldo Acumulado")
                     LegendItem(ColorWealth, "Patrimônio")
                 }
             }
             "salary" -> LegendItem(ColorSalary, "Salário")
             "yield" -> {
-                LegendItem(ColorAccYield, "Rend. Acum.")
-                LegendItem(ColorYield, "Rend. Mensal")
+                LegendItem(ColorAccYield, "Rendimento Acumulado")
+                LegendItem(ColorYield, "Rendimento Mensal")
             }
             "combined" -> {
                 Column {
-                    LegendItem(ColorSalary, "Salário (Col)")
+                    LegendItem(ColorSalary, "Salário")
                 }
                 Column {
-                    LegendItem(ColorYield, "Rend. Mensal (Lin)")
-                    LegendItem(ColorAccYield, "Rend. Acum. (Lin)")
+                    LegendItem(ColorYield, "Rendimento Mensal")
+                    LegendItem(ColorAccYield, "Rendimento Acumulado")
                 }
             }
         }

@@ -9,13 +9,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.flowfinance.app.ui.viewmodel.MonthlyFinancialData
+import com.flowfinance.app.util.formatCurrency
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -29,6 +32,7 @@ val ColorWealth = Color(0xFFEF5350) // Vermelho
 @Composable
 fun GeneralOverviewChart(
     data: List<MonthlyFinancialData>,
+    currency: String,
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) return
@@ -39,35 +43,30 @@ fun GeneralOverviewChart(
     }.toFloat().coerceAtLeast(1f)
 
     Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val barWidth = width / (data.size * 2f)
+        val leftPadding = 60.dp.toPx() // Aumentado para acomodar valores com R$
+        val bottomPadding = 20.dp.toPx()
+        val chartWidth = size.width - leftPadding
+        val chartHeight = size.height - bottomPadding
 
-        // Eixo Y e Labels (Simplificado)
-        drawLine(
-            color = Color.Gray,
-            start = Offset(0f, height),
-            end = Offset(width, height),
-            strokeWidth = 2f
-        )
+        drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
 
-        // Função auxiliar para desenhar linhas
         fun drawLineChart(values: List<Float>, color: Color) {
             if (values.size < 2) return
             val path = Path()
-            val stepX = width / (values.size - 1)
+            val stepX = chartWidth / data.size
             
-            path.moveTo(0f, height - (values[0] / maxVal * height))
+            val startX = leftPadding + stepX / 2
+            val startY = chartHeight - (values[0] / maxVal * chartHeight)
+            path.moveTo(startX, startY)
+            
             for (i in 1 until values.size) {
-                val x = i * stepX
-                val y = height - (values[i] / maxVal * height)
-                // Suavização simples (Bezier quadrática poderia ser usada para mais suavidade)
+                val x = leftPadding + i * stepX + stepX / 2
+                val y = chartHeight - (values[i] / maxVal * chartHeight)
                 path.lineTo(x, y)
             }
             drawPath(path, color, style = Stroke(width = 3.dp.toPx()))
         }
 
-        // Desenhar as 5 linhas
         drawLineChart(data.map { it.salary.toFloat() }, ColorSalary)
         drawLineChart(data.map { it.monthlyYield.toFloat() }, ColorYield)
         drawLineChart(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
@@ -79,27 +78,46 @@ fun GeneralOverviewChart(
 @Composable
 fun SalaryBarChart(
     data: List<MonthlyFinancialData>,
+    currency: String,
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) return
+    val textMeasurer = rememberTextMeasurer()
     val maxVal = data.maxOf { it.salary }.toFloat().coerceAtLeast(1f)
 
     Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val barWidth = (width / data.size) * 0.6f
-        val stepX = width / data.size
+        val leftPadding = 60.dp.toPx()
+        val bottomPadding = 20.dp.toPx()
+        val chartWidth = size.width - leftPadding
+        val chartHeight = size.height - bottomPadding
+
+        drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+
+        val stepX = chartWidth / data.size
+        val barWidth = stepX * 0.6f
 
         data.forEachIndexed { index, item ->
-            val barHeight = (item.salary.toFloat() / maxVal) * height
-            val x = index * stepX + (stepX - barWidth) / 2
-            val y = height - barHeight
-
+            val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
+            val x = leftPadding + index * stepX + (stepX - barWidth) / 2
+            val y = chartHeight - barHeight
+            
             drawRect(
                 color = ColorSalary,
                 topLeft = Offset(x, y),
                 size = Size(barWidth, barHeight)
             )
+            
+            // Draw value above bar
+            val textResult = textMeasurer.measure(
+                text = formatCurrency(item.salary, currency),
+                style = TextStyle(fontSize = 9.sp, color = Color.Gray)
+            )
+            if (y - textResult.size.height > 0) {
+                 drawText(
+                    textLayoutResult = textResult,
+                    topLeft = Offset(x + (barWidth - textResult.size.width)/2, y - textResult.size.height - 2.dp.toPx())
+                )
+            }
         }
     }
 }
@@ -107,44 +125,56 @@ fun SalaryBarChart(
 @Composable
 fun YieldAreaChart(
     data: List<MonthlyFinancialData>,
+    currency: String,
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) return
+    val textMeasurer = rememberTextMeasurer()
     val maxVal = data.maxOf { maxOf(it.monthlyYield, it.accumulatedYield) }.toFloat().coerceAtLeast(1f)
 
     Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val stepX = width / (data.size - 1).coerceAtLeast(1)
+        val leftPadding = 60.dp.toPx()
+        val bottomPadding = 20.dp.toPx()
+        val chartWidth = size.width - leftPadding
+        val chartHeight = size.height - bottomPadding
 
-        // Função para desenhar área
+        drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+
+        val stepX = chartWidth / data.size
+
         fun drawArea(values: List<Float>, color: Color) {
             val path = Path()
-            path.moveTo(0f, height) // Começa na base
+            
+            val startX = leftPadding + stepX / 2
+            path.moveTo(startX, chartHeight)
             
             values.forEachIndexed { index, value ->
-                val x = index * stepX
-                val y = height - (value / maxVal * height)
+                val x = leftPadding + index * stepX + stepX / 2
+                val y = chartHeight - (value / maxVal * chartHeight)
                 path.lineTo(x, y)
             }
-            path.lineTo(width, height) // Fecha na base
+            
+            val endX = leftPadding + (values.size - 1) * stepX + stepX / 2
+            path.lineTo(endX, chartHeight)
+            
             path.close()
             
             drawPath(
                 path = path,
                 brush = Brush.verticalGradient(
-                    colors = listOf(color.copy(alpha = 0.5f), color.copy(alpha = 0.1f))
+                    colors = listOf(color.copy(alpha = 0.5f), color.copy(alpha = 0.1f)),
+                    startY = 0f,
+                    endY = chartHeight
                 )
             )
-            // Linha superior
+            
             val linePath = Path()
-            linePath.moveTo(0f, height - (values[0] / maxVal * height))
-            values.forEachIndexed { index, value ->
-                if(index > 0) {
-                    val x = index * stepX
-                    val y = height - (value / maxVal * height)
-                    linePath.lineTo(x, y)
-                }
+            linePath.moveTo(startX, chartHeight - (values[0] / maxVal * chartHeight))
+            
+            for(i in 1 until values.size) {
+                val x = leftPadding + i * stepX + stepX / 2
+                val y = chartHeight - (values[i] / maxVal * chartHeight)
+                linePath.lineTo(x, y)
             }
             drawPath(linePath, color, style = Stroke(2.dp.toPx()))
         }
@@ -157,45 +187,108 @@ fun YieldAreaChart(
 @Composable
 fun CombinedChart(
     data: List<MonthlyFinancialData>,
+    currency: String,
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) return
+    val textMeasurer = rememberTextMeasurer()
     val maxVal = data.maxOf { maxOf(it.salary, it.monthlyYield, it.accumulatedYield) }.toFloat().coerceAtLeast(1f)
 
     Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val stepX = width / data.size
+        val leftPadding = 60.dp.toPx()
+        val bottomPadding = 20.dp.toPx()
+        val chartWidth = size.width - leftPadding
+        val chartHeight = size.height - bottomPadding
+
+        drawStandardChartGrid(textMeasurer, maxVal, data, leftPadding, bottomPadding, currency)
+
+        val stepX = chartWidth / data.size
         val barWidth = stepX * 0.4f
 
-        // 1. Colunas (Salário)
+        // 1. Vertical Bars (Salary)
         data.forEachIndexed { index, item ->
-            val barHeight = (item.salary.toFloat() / maxVal) * height
-            val x = index * stepX + (stepX - barWidth) / 2
-            val y = height - barHeight
-            drawRect(ColorSalary, topLeft = Offset(x, y), size = Size(barWidth, barHeight))
+            val barHeight = (item.salary.toFloat() / maxVal) * chartHeight
+            val x = leftPadding + index * stepX + (stepX - barWidth) / 2
+            val y = chartHeight - barHeight
+            
+            drawRect(
+                color = ColorSalary,
+                topLeft = Offset(x, y),
+                size = Size(barWidth, barHeight)
+            )
         }
 
-        // 2. Linhas (Rendimentos)
-        val lineStepX = width / (data.size - 1).coerceAtLeast(1)
-        
+        // 2. Lines (Yields)
         fun drawLine(values: List<Float>, color: Color) {
             if(values.size < 2) return
             val path = Path()
-            path.moveTo(0f, height - (values[0] / maxVal * height))
+            
+            val startX = leftPadding + stepX / 2
+            val startY = chartHeight - (values[0] / maxVal * chartHeight)
+            path.moveTo(startX, startY)
+            
             for(i in 1 until values.size) {
-                path.lineTo(i * lineStepX, height - (values[i] / maxVal * height))
+                val x = leftPadding + i * stepX + stepX / 2
+                val y = chartHeight - (values[i] / maxVal * chartHeight)
+                path.lineTo(x, y)
             }
             drawPath(path, color, style = Stroke(3.dp.toPx()))
         }
 
-        // Ajuste: Linhas centralizadas nas colunas para melhor visualização combinada?
-        // Simplificação: Linha desenhada de ponto a ponto cobrindo a largura
-        
-        // Rendimento Mensal (Linha)
         drawLine(data.map { it.monthlyYield.toFloat() }, ColorYield)
-        
-        // Rendimento Acumulado (Linha)
         drawLine(data.map { it.accumulatedYield.toFloat() }, ColorAccYield)
+    }
+}
+
+private fun DrawScope.drawStandardChartGrid(
+    textMeasurer: TextMeasurer,
+    maxVal: Float,
+    data: List<MonthlyFinancialData>,
+    leftPadding: Float,
+    bottomPadding: Float,
+    currency: String
+) {
+    val chartWidth = size.width - leftPadding
+    val chartHeight = size.height - bottomPadding
+    
+    // Horizontal Grid Lines & Y-Axis Labels (Values)
+    val steps = 4
+    for (i in 0..steps) {
+        val value = (maxVal / steps) * i
+        val y = chartHeight - (chartHeight / steps) * i
+        
+        drawLine(
+            color = Color.LightGray.copy(alpha = 0.5f),
+            start = Offset(leftPadding, y),
+            end = Offset(size.width, y),
+            strokeWidth = 1.dp.toPx()
+        )
+        
+        val textResult = textMeasurer.measure(
+            text = formatCurrency(value.toDouble(), currency).substringBefore(","), // Simplificado para caber (sem centavos)
+            style = TextStyle(fontSize = 9.sp, color = Color.Gray)
+        )
+        drawText(
+            textLayoutResult = textResult,
+            topLeft = Offset(leftPadding - textResult.size.width - 4.dp.toPx(), y - textResult.size.height / 2)
+        )
+    }
+    
+    // X-Axis Labels (Months)
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM", Locale("pt", "BR"))
+    val stepX = chartWidth / data.size
+    
+    data.forEachIndexed { index, item ->
+        val x = leftPadding + index * stepX + stepX / 2
+        
+        val textResult = textMeasurer.measure(
+            text = item.yearMonth.format(dateFormatter),
+            style = TextStyle(fontSize = 10.sp, color = Color.Gray)
+        )
+        
+        drawText(
+            textLayoutResult = textResult,
+            topLeft = Offset(x - textResult.size.width / 2, chartHeight + 4.dp.toPx())
+        )
     }
 }

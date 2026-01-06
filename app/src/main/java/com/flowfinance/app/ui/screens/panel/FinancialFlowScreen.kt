@@ -1,6 +1,5 @@
 package com.flowfinance.app.ui.screens.panel
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,6 +89,7 @@ fun FinancialFlowScreen(
                     ) {
                         GeneralOverviewChart(
                             data = uiState.monthlyData,
+                            currency = uiState.currency,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
@@ -110,6 +110,7 @@ fun FinancialFlowScreen(
                             ) {
                                 SalaryBarChart(
                                     data = uiState.monthlyData,
+                                    currency = uiState.currency,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(150.dp)
@@ -123,6 +124,7 @@ fun FinancialFlowScreen(
                             ) {
                                 YieldAreaChart(
                                     data = uiState.monthlyData,
+                                    currency = uiState.currency,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(150.dp)
@@ -140,6 +142,7 @@ fun FinancialFlowScreen(
                     ) {
                         CombinedChart(
                             data = uiState.monthlyData,
+                            currency = uiState.currency,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
@@ -166,13 +169,13 @@ fun FinancialFlowScreen(
 fun ChartCard(
     title: String,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}, // Added onClick parameter
+    onClick: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.clickable { onClick() } // Make card clickable
+        modifier = modifier.clickable { onClick() }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
