@@ -29,14 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.flowfinance.app.ui.components.AddTransactionSheet
 import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
+import com.flowfinance.app.ui.screens.panel.FullScreenChartScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
 import com.flowfinance.app.ui.screens.panel.SheetScreen
 import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
@@ -73,7 +76,8 @@ class MainActivity : ComponentActivity() {
                         if (currentRoute != Screen.UserProfile.route && 
                             currentRoute != Screen.ManageBudgets.route &&
                             currentRoute != Screen.FinancialFlow.route &&
-                            currentRoute != Screen.Sheet.route) {
+                            currentRoute != Screen.Sheet.route &&
+                            currentRoute?.startsWith("chart_detail") != true) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
                                 val screens = listOf(
@@ -166,11 +170,24 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.FinancialFlow.route) {
                                 FinancialFlowScreen(
                                     onBackClick = { navController.popBackStack() },
-                                    onShowSheetClick = { navController.navigate(Screen.Sheet.route) }
+                                    onShowSheetClick = { navController.navigate(Screen.Sheet.route) },
+                                    onChartClick = { chartType -> 
+                                        navController.navigate(Screen.ChartDetail.createRoute(chartType))
+                                    }
                                 )
                             }
                             composable(Screen.Sheet.route) {
                                 SheetScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(
+                                route = Screen.ChartDetail.route,
+                                arguments = listOf(navArgument("chartType") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val chartType = backStackEntry.arguments?.getString("chartType") ?: "overview"
+                                FullScreenChartScreen(
+                                    chartType = chartType,
+                                    onBackClick = { navController.popBackStack() }
+                                )
                             }
                         }
                     }

@@ -1,6 +1,7 @@
 package com.flowfinance.app.ui.screens.panel
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import com.flowfinance.app.ui.viewmodel.FinancialFlowViewModel
 fun FinancialFlowScreen(
     onBackClick: () -> Unit,
     onShowSheetClick: () -> Unit,
+    onChartClick: (String) -> Unit, // Callback for chart clicks
     viewModel: FinancialFlowViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -109,12 +111,14 @@ fun FinancialFlowScreen(
                     .fillMaxSize()
                     .padding(padding)
                     .padding(16.dp),
-                // Aumentei o espaçamento vertical entre os elementos de 24dp para 32dp
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 // 1. Visualização Geral
                 item {
-                    ChartCard(title = "Visualização Geral") {
+                    ChartCard(
+                        title = "Visualização Geral",
+                        onClick = { onChartClick("overview") }
+                    ) {
                         GeneralOverviewChart(
                             data = uiState.monthlyData,
                             modifier = Modifier
@@ -130,9 +134,11 @@ fun FinancialFlowScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Usando weight(1f) para dividir o espaço igualmente
                         Box(modifier = Modifier.weight(1f)) {
-                            ChartCard(title = "Salário") {
+                            ChartCard(
+                                title = "Salário",
+                                onClick = { onChartClick("salary") }
+                            ) {
                                 SalaryBarChart(
                                     data = uiState.monthlyData,
                                     modifier = Modifier
@@ -142,7 +148,10 @@ fun FinancialFlowScreen(
                             }
                         }
                         Box(modifier = Modifier.weight(1f)) {
-                            ChartCard(title = "Rendimentos") {
+                            ChartCard(
+                                title = "Rendimentos",
+                                onClick = { onChartClick("yield") }
+                            ) {
                                 YieldAreaChart(
                                     data = uiState.monthlyData,
                                     modifier = Modifier
@@ -156,7 +165,10 @@ fun FinancialFlowScreen(
 
                 // 3. Salário X Rendimentos
                 item {
-                    ChartCard(title = "Salário X Rendimentos") {
+                    ChartCard(
+                        title = "Salário X Rendimentos",
+                        onClick = { onChartClick("combined") }
+                    ) {
                         CombinedChart(
                             data = uiState.monthlyData,
                             modifier = Modifier
@@ -174,7 +186,6 @@ fun FinancialFlowScreen(
                     ) {
                         Text("Mostrar Planilha")
                     }
-                    // Adicionei um espaçamento extra no final da lista
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -182,18 +193,17 @@ fun FinancialFlowScreen(
     }
 }
 
-// Componente reutilizável para o fundo dos gráficos
 @Composable
 fun ChartCard(
     title: String,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}, // Added onClick parameter
     content: @Composable () -> Unit
 ) {
     Card(
-        // surfaceVariant dá o tom "um pouco mais escuro/destacado" no tema padrão
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier
+        modifier = modifier.clickable { onClick() } // Make card clickable
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
