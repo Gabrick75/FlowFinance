@@ -9,7 +9,7 @@ import com.flowfinance.app.data.local.dao.TransactionDao
 import com.flowfinance.app.data.local.entity.Category
 import com.flowfinance.app.data.local.entity.Transaction
 
-@Database(entities = [Transaction::class, Category::class], version = 1, exportSchema = false)
+@Database(entities = [Transaction::class, Category::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
