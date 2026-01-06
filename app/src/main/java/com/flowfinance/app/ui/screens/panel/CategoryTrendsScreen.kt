@@ -2,9 +2,6 @@ package com.flowfinance.app.ui.screens.panel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -41,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,13 +51,13 @@ import com.flowfinance.app.ui.components.CategoryPieChart
 import com.flowfinance.app.ui.components.CategoryStackedAreaChart
 import com.flowfinance.app.ui.components.CategoryTrendsLineChart
 import com.flowfinance.app.ui.viewmodel.CategoryTrendsViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryTrendsScreen(
     onBackClick: () -> Unit,
     onShowSheetClick: () -> Unit,
+    onChartClick: (String) -> Unit,
     viewModel: CategoryTrendsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -133,7 +128,7 @@ fun CategoryTrendsScreen(
                             state = pagerState,
                             modifier = Modifier.fillMaxWidth()
                         ) { page ->
-                            ChartCard(title = if (page == 0) "Total Geral (Desde Sempre)" else "Mês Atual") {
+                            CategoryChartCard(title = if (page == 0) "Total Geral (Desde Sempre)" else "Mês Atual") {
                                 if (page == 0) {
                                     CategoryPieChart(
                                         data = uiState.totalExpensesByCategory,
@@ -204,7 +199,7 @@ fun CategoryTrendsScreen(
                             }
                         }
                         
-                        ChartCard(title = "", modifier = Modifier.padding(top = 8.dp)) {
+                        CategoryChartCard(title = "", modifier = Modifier.padding(top = 8.dp)) {
                             val dataToShow = if (selectedRankingTab == 0) {
                                 uiState.totalExpensesByCategory.take(5) // Top 5
                             } else {
@@ -235,7 +230,10 @@ fun CategoryTrendsScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    ChartCard(title = "Evolução por Categoria") {
+                    CategoryChartCard(
+                        title = "Evolução por Categoria",
+                        onClick = { onChartClick("category_trends_line") }
+                    ) {
                         CategoryTrendsLineChart(
                             data = uiState.monthlyData,
                             categories = uiState.categories,
@@ -257,7 +255,10 @@ fun CategoryTrendsScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    ChartCard(title = "Acumulado por Categoria") {
+                    CategoryChartCard(
+                        title = "Acumulado por Categoria",
+                        onClick = { onChartClick("category_trends_stacked") }
+                    ) {
                         CategoryStackedAreaChart(
                             data = uiState.monthlyData,
                             categories = uiState.categories,
@@ -287,15 +288,16 @@ fun CategoryTrendsScreen(
 }
 
 @Composable
-fun ChartCard(
+private fun CategoryChartCard(
     title: String,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier
+        modifier = if (onClick != null) modifier.clickable(onClick = onClick) else modifier
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

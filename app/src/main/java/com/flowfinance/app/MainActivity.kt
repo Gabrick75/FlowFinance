@@ -184,7 +184,10 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.CategoryTrends.route) {
                                 CategoryTrendsScreen(
                                     onBackClick = { navController.popBackStack() },
-                                    onShowSheetClick = { navController.navigate(Screen.CategoryTrendsSheet.route) }
+                                    onShowSheetClick = { navController.navigate(Screen.CategoryTrendsSheet.route) },
+                                    onChartClick = { chartType ->
+                                        navController.navigate(Screen.ChartDetail.createRoute(chartType))
+                                    }
                                 )
                             }
                             composable(Screen.CategoryTrendsSheet.route) {
