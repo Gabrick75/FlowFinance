@@ -22,9 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.model.CategorySummary
 import com.flowfinance.app.util.formatCurrency
 import com.flowfinance.app.ui.viewmodel.PlanningViewModel
@@ -43,12 +45,12 @@ fun PlanningScreen(
     ) {
         item {
             Text(
-                text = "Metas por Categoria",
+                text = stringResource(R.string.planning_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Acompanhe seus gastos mensais em relação ao planejado.",
+                text = stringResource(R.string.planning_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -78,8 +80,10 @@ fun CategoryBudgetStart(summary: CategorySummary, currencyCode: String) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
+            val budgetFormatted = formatCurrency(budget, currencyCode)
+            val amountFormatted = formatCurrency(summary.totalAmount, currencyCode)
             Text(
-                text = "${formatCurrency(summary.totalAmount, currencyCode)} / ${formatCurrency(budget, currencyCode)}",
+                text = "$amountFormatted ${stringResource(R.string.planning_budget_progress, budgetFormatted)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

@@ -86,7 +86,7 @@ fun SettingsScreen(
     // State for delete confirmation dialog
     var showDeleteDialog by remember { mutableStateOf(false) }
     var deleteConfirmationText by remember { mutableStateOf("") }
-    val CONFIRMATION_PHRASE = "tenho certeza"
+    val CONFIRMATION_PHRASE = stringResource(R.string.dialog_delete_phrase)
 
     // State for Backup Dialogs
     var showExportBackupDialog by remember { mutableStateOf(false) }
@@ -125,7 +125,7 @@ fun SettingsScreen(
                 if (metadata != null) {
                     importedMetadata = metadata
                 } else {
-                    fileCheckError = "Arquivo inválido ou corrompido."
+                    fileCheckError = context.getString(R.string.dialog_import_file_error)
                 }
             }
         }
@@ -143,10 +143,10 @@ fun SettingsScreen(
     if (showNotificationDialog) {
         AlertDialog(
             onDismissRequest = { showNotificationDialog = false },
-            title = { Text("Configurar Notificações") },
+            title = { Text(stringResource(R.string.dialog_notification_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Defina o horário e a frequência do lembrete para registrar suas despesas.")
+                    Text(stringResource(R.string.dialog_notification_desc))
 
                     // Time Picker Row
                     Row(
@@ -154,7 +154,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Horário do Lembrete:")
+                        Text(stringResource(R.string.dialog_notification_time))
                         TextButton(onClick = {
                             TimePickerDialog(context, { _, hour, minute ->
                                 tempHour = hour
@@ -171,7 +171,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Intervalo (dias):")
+                        Text(stringResource(R.string.dialog_notification_interval))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(onClick = { if (tempInterval > 1) tempInterval-- }) {
                                 Text("-", style = MaterialTheme.typography.titleLarge)
@@ -190,7 +190,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                     ) {
-                        Text("Testar Notificação Agora")
+                        Text(stringResource(R.string.dialog_notification_test))
                     }
                 }
             },
@@ -198,9 +198,9 @@ fun SettingsScreen(
                 Button(onClick = {
                     viewModel.updateReminderSettings(tempHour, tempMinute, tempInterval, true)
                     showNotificationDialog = false
-                    Toast.makeText(context, "Lembrete configurado!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.dialog_notification_saved), Toast.LENGTH_SHORT).show()
                 }) {
-                    Text("Salvar")
+                    Text(stringResource(R.string.dialog_save))
                 }
             },
             dismissButton = {
@@ -211,7 +211,7 @@ fun SettingsScreen(
                     tempMinute = userData.reminderMinute
                     tempInterval = userData.reminderIntervalDays
                 }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.dialog_cancel))
                 }
             }
         )
@@ -223,12 +223,12 @@ fun SettingsScreen(
                 showDeleteDialog = false 
                 deleteConfirmationText = ""
             },
-            title = { Text("Atenção: Apagar Tudo") },
+            title = { Text(stringResource(R.string.dialog_delete_title)) },
             text = {
                 Column {
-                    Text("Esta ação é irreversível. Todos os seus dados serão apagados permanentemente.")
+                    Text(stringResource(R.string.dialog_delete_desc))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Digite \"$CONFIRMATION_PHRASE\" para confirmar:")
+                    Text(stringResource(R.string.dialog_delete_confirm_text, CONFIRMATION_PHRASE))
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = deleteConfirmationText,
@@ -243,14 +243,14 @@ fun SettingsScreen(
                 Button(
                     onClick = {
                         viewModel.clearAllData()
-                        Toast.makeText(context, "Dados apagados com sucesso.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.dialog_delete_success), Toast.LENGTH_SHORT).show()
                         showDeleteDialog = false
                         deleteConfirmationText = ""
                     },
                     enabled = deleteConfirmationText.equals(CONFIRMATION_PHRASE, ignoreCase = true),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Apagar Tudo")
+                    Text(stringResource(R.string.dialog_delete_button))
                 }
             },
             dismissButton = {
@@ -258,7 +258,7 @@ fun SettingsScreen(
                     showDeleteDialog = false
                     deleteConfirmationText = ""
                 }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.dialog_cancel))
                 }
             }
         )
@@ -271,16 +271,16 @@ fun SettingsScreen(
                 backupPassword = ""
                 backupPasswordConfirm = ""
             },
-            title = { Text("Exportar Backup") },
+            title = { Text(stringResource(R.string.dialog_export_title)) },
             text = {
                 Column {
-                    Text("Defina uma senha para criptografar seu backup.")
+                    Text(stringResource(R.string.dialog_export_desc))
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedTextField(
                         value = backupPassword,
                         onValueChange = { backupPassword = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Senha") },
+                        label = { Text(stringResource(R.string.dialog_password_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true
                     )
@@ -289,7 +289,7 @@ fun SettingsScreen(
                         value = backupPasswordConfirm,
                         onValueChange = { backupPasswordConfirm = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Confirmar Senha") },
+                        label = { Text(stringResource(R.string.dialog_confirm_password_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         isError = backupPassword.isNotEmpty() && backupPasswordConfirm.isNotEmpty() && backupPassword != backupPasswordConfirm
@@ -311,12 +311,12 @@ fun SettingsScreen(
                                  }
                              }
                          } else {
-                             Toast.makeText(context, "As senhas não coincidem ou estão vazias.", Toast.LENGTH_SHORT).show()
+                             Toast.makeText(context, context.getString(R.string.dialog_password_mismatch), Toast.LENGTH_SHORT).show()
                          }
                     },
                     enabled = backupPassword.isNotEmpty() && backupPassword == backupPasswordConfirm
                 ) {
-                    Text("Gerar Backup")
+                    Text(stringResource(R.string.dialog_export_button))
                 }
             },
             dismissButton = {
@@ -325,7 +325,7 @@ fun SettingsScreen(
                     backupPassword = ""
                     backupPasswordConfirm = ""
                 }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.dialog_cancel))
                 }
             }
         )
@@ -339,7 +339,7 @@ fun SettingsScreen(
                 importedMetadata = null
                 fileCheckError = null
             },
-            title = { Text("Importar Backup") },
+            title = { Text(stringResource(R.string.dialog_import_title)) },
             text = {
                 Column {
                      if (isCheckingFile) {
@@ -349,31 +349,31 @@ fun SettingsScreen(
                      } else if (fileCheckError != null) {
                          Text(fileCheckError!!, color = MaterialTheme.colorScheme.error)
                      } else if (importedMetadata != null) {
-                         Text("Arquivo de backup encontrado.", fontWeight = FontWeight.Bold)
+                         Text(stringResource(R.string.dialog_import_found), fontWeight = FontWeight.Bold)
                          Spacer(modifier = Modifier.height(8.dp))
-                         Text("Versão do App: ${importedMetadata?.appVersion}")
+                         Text(stringResource(R.string.dialog_app_version, importedMetadata?.appVersion ?: ""))
                          
                          val formattedDate = try {
                              val date = LocalDateTime.parse(importedMetadata?.createdAt)
                              date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                          } catch (e: Exception) {
-                             importedMetadata?.createdAt
+                             importedMetadata?.createdAt ?: ""
                          }
                          
-                         Text("Data: $formattedDate")
+                         Text(stringResource(R.string.dialog_date, formattedDate))
                          Spacer(modifier = Modifier.height(16.dp))
-                         Text("Digite a senha para restaurar os dados.")
+                         Text(stringResource(R.string.dialog_import_password_desc))
                          Spacer(modifier = Modifier.height(8.dp))
                          OutlinedTextField(
                             value = backupPassword,
                             onValueChange = { backupPassword = it },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Senha do Backup") },
+                            label = { Text(stringResource(R.string.dialog_password_label)) },
                             visualTransformation = PasswordVisualTransformation(),
                             singleLine = true
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Atenção: Todos os dados atuais serão substituídos.", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.dialog_import_warning), color = MaterialTheme.colorScheme.error)
                      }
                 }
             },
@@ -391,7 +391,7 @@ fun SettingsScreen(
                     },
                     enabled = importedMetadata != null && backupPassword.isNotEmpty()
                 ) {
-                    Text("Importar")
+                    Text(stringResource(R.string.dialog_import_button))
                 }
             },
             dismissButton = {
@@ -400,7 +400,7 @@ fun SettingsScreen(
                     backupPassword = ""
                     importedMetadata = null
                 }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.dialog_cancel))
                 }
             }
         )
@@ -413,27 +413,27 @@ fun SettingsScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Configurações",
+            text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        SettingsSection(title = "Perfil") {
+        SettingsSection(title = stringResource(R.string.settings_profile_section)) {
             SettingsItem(
                 icon = Icons.Default.Person,
                 title = userData.userName,
-                subtitle = "Toque para editar perfil e moeda (${userData.currency})",
+                subtitle = stringResource(R.string.settings_profile_subtitle, userData.currency),
                 onClick = onProfileClick
             )
         }
 
-        SettingsSection(title = "Preferências") {
+        SettingsSection(title = stringResource(R.string.settings_preferences_section)) {
             ListItem(
                 leadingContent = {
                     Icon(Icons.Default.DarkMode, contentDescription = null)
                 },
-                headlineContent = { Text("Tema Escuro") },
+                headlineContent = { Text(stringResource(R.string.settings_dark_theme)) },
                 trailingContent = {
                     Switch(
                         checked = userData.isDarkTheme,
@@ -447,7 +447,7 @@ fun SettingsScreen(
                 leadingContent = {
                     Icon(Icons.Default.Notifications, contentDescription = null)
                 },
-                headlineContent = { Text("Configurar Notificações") },
+                headlineContent = { Text(stringResource(R.string.settings_notifications)) },
                 trailingContent = {
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
                 },
@@ -455,11 +455,11 @@ fun SettingsScreen(
             )
         }
 
-        SettingsSection(title = "Dados") {
+        SettingsSection(title = stringResource(R.string.settings_data_section)) {
             SettingsItem(
                 icon = Icons.Default.Download,
-                title = "Exportar Dados (Planilha)",
-                subtitle = "Salvar planilha completa (.xls)",
+                title = stringResource(R.string.settings_export_data),
+                subtitle = stringResource(R.string.settings_export_subtitle),
                 onClick = {
                     viewModel.exportDataToCsv { filePath ->
                         if (filePath != null) {
@@ -472,23 +472,23 @@ fun SettingsScreen(
             )
             SettingsItem(
                 icon = Icons.Default.Delete,
-                title = "Limpar Dados",
-                subtitle = "Apagar todas as transações",
+                title = stringResource(R.string.settings_clear_data),
+                subtitle = stringResource(R.string.settings_clear_subtitle),
                 onClick = { showDeleteDialog = true }
             )
         }
 
-        SettingsSection(title = "Backup") {
+        SettingsSection(title = stringResource(R.string.settings_backup_section)) {
             SettingsItem(
                 icon = Icons.Default.Save,
-                title = "Exportar Backup",
-                subtitle = "Salvar cópia criptografada de todos os dados",
+                title = stringResource(R.string.settings_export_backup),
+                subtitle = stringResource(R.string.settings_export_backup_subtitle),
                 onClick = { showExportBackupDialog = true }
             )
             SettingsItem(
                 icon = Icons.Default.Upload,
-                title = "Importar Backup",
-                subtitle = "Restaurar dados de um arquivo de backup",
+                title = stringResource(R.string.settings_import_backup),
+                subtitle = stringResource(R.string.settings_import_backup_subtitle),
                 onClick = { 
                     filePickerLauncher.launch(arrayOf("*/*")) 
                 }
@@ -526,7 +526,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             ListItem(
-                headlineContent = { Text("Ver código fonte") },
+                headlineContent = { Text(stringResource(R.string.settings_view_source)) },
                 leadingContent = { Icon(Icons.Default.Code, contentDescription = null) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null) },
                 modifier = Modifier
@@ -540,7 +540,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(8.dp))
             
             ListItem(
-                headlineContent = { Text("Ver documentação") },
+                headlineContent = { Text(stringResource(R.string.settings_view_docs)) },
                 leadingContent = { Icon(Icons.Default.Description, contentDescription = null) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null) },
                 modifier = Modifier
@@ -554,7 +554,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Desenvolvido por Gabrick75",
+                text = stringResource(R.string.settings_developed_by),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

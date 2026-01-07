@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.core.graphics.applyCanvas
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.components.CategoryStackedAreaChart
 import com.flowfinance.app.ui.components.CategoryTrendsLineChart
 import com.flowfinance.app.ui.components.ColorAccYield
@@ -101,10 +103,10 @@ fun FinancialFlowFullScreen(
     var showInfoPopup by remember { mutableStateOf(false) }
 
     val chartTitle = when (chartType) {
-        "overview" -> "Visualização Geral"
-        "salary" -> "Salário"
-        "yield" -> "Rendimentos"
-        "combined" -> "Salário X Rendimentos"
+        "overview" -> stringResource(R.string.chart_title_overview)
+        "salary" -> stringResource(R.string.chart_title_salary)
+        "yield" -> stringResource(R.string.chart_title_yield)
+        "combined" -> stringResource(R.string.chart_title_combined)
         else -> "Gráfico"
     }
 
@@ -113,19 +115,19 @@ fun FinancialFlowFullScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        "Detalhes do Gráfico", 
+                        stringResource(R.string.chart_detail_title), 
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showInfoPopup = !showInfoPopup }) {
-                        Icon(Icons.Default.Info, contentDescription = "Informações da Legenda")
+                        Icon(Icons.Default.Info, contentDescription = stringResource(R.string.chart_info_legend))
                     }
                     IconButton(onClick = { 
                         coroutineScope.launch {
@@ -149,11 +151,11 @@ fun FinancialFlowFullScreen(
                             
                             val success = saveBitmapToFile(context, croppedBitmap, "chart_${System.currentTimeMillis()}.png")
                             
-                            val message = if (success) "Gráfico salvo com sucesso!" else "Falha ao salvar gráfico."
+                            val message = if (success) context.getString(R.string.chart_save_success) else context.getString(R.string.chart_save_failure)
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         }
                     }) {
-                        Icon(Icons.Default.Download, contentDescription = "Baixar Gráfico")
+                        Icon(Icons.Default.Download, contentDescription = stringResource(R.string.chart_download))
                     }
                 }
             )
@@ -251,8 +253,8 @@ fun CategoryTrendsFullScreen(
     var showInfoPopup by remember { mutableStateOf(false) }
 
     val chartTitle = when (chartType) {
-        "category_trends_line" -> "Evolução por Categoria"
-        "category_trends_stacked" -> "Acumulado por Categoria"
+        "category_trends_line" -> stringResource(R.string.chart_title_category_line)
+        "category_trends_stacked" -> stringResource(R.string.chart_title_category_stacked)
         else -> "Gráfico"
     }
 
@@ -261,19 +263,19 @@ fun CategoryTrendsFullScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        "Detalhes do Gráfico", 
+                        stringResource(R.string.chart_detail_title), 
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showInfoPopup = !showInfoPopup }) {
-                        Icon(Icons.Default.Info, contentDescription = "Informações da Legenda")
+                        Icon(Icons.Default.Info, contentDescription = stringResource(R.string.chart_info_legend))
                     }
                     IconButton(onClick = { 
                         coroutineScope.launch {
@@ -297,11 +299,11 @@ fun CategoryTrendsFullScreen(
                             
                             val success = saveBitmapToFile(context, croppedBitmap, "chart_${System.currentTimeMillis()}.png")
                             
-                            val message = if (success) "Gráfico salvo com sucesso!" else "Falha ao salvar gráfico."
+                            val message = if (success) context.getString(R.string.chart_save_success) else context.getString(R.string.chart_save_failure)
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         }
                     }) {
-                        Icon(Icons.Default.Download, contentDescription = "Baixar Gráfico")
+                        Icon(Icons.Default.Download, contentDescription = stringResource(R.string.chart_download))
                     }
                 }
             )
@@ -362,7 +364,7 @@ fun CategoryTrendsFullScreen(
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        Text("Categorias:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.chart_categories_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         FlowRow(
@@ -391,7 +393,7 @@ fun CategoryTrendsFullScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Informações", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
+                            Text(stringResource(R.string.chart_info_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 16.dp))
                             
                             val desc = if (chartType == "category_trends_line") 
                                 "Este gráfico mostra a variação dos gastos de cada categoria mês a mês, permitindo identificar tendências de aumento ou redução."
@@ -401,7 +403,7 @@ fun CategoryTrendsFullScreen(
                             Text(desc)
                             
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text("Legenda de Cores:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.chart_legend_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             Column {
@@ -427,27 +429,27 @@ fun ChartLegend(chartType: String) {
         when (chartType) {
             "overview" -> {
                 Column {
-                    LegendItem(ColorSalary, "Salário")
-                    LegendItem(ColorYield, "Rendimento Mensal")
-                    LegendItem(ColorAccYield, "Rendimento Acumulado")
+                    LegendItem(ColorSalary, stringResource(R.string.sheet_col_salary))
+                    LegendItem(ColorYield, stringResource(R.string.sheet_col_yield_monthly))
+                    LegendItem(ColorAccYield, stringResource(R.string.sheet_col_yield_acc))
                 }
                 Column {
-                    LegendItem(ColorBalance, "Saldo Acumulado")
-                    LegendItem(ColorWealth, "Patrimônio")
+                    LegendItem(ColorBalance, stringResource(R.string.sheet_col_balance_acc))
+                    LegendItem(ColorWealth, stringResource(R.string.sheet_col_wealth))
                 }
             }
-            "salary" -> LegendItem(ColorSalary, "Salário")
+            "salary" -> LegendItem(ColorSalary, stringResource(R.string.sheet_col_salary))
             "yield" -> {
-                LegendItem(ColorAccYield, "Rendimento Acumulado")
-                LegendItem(ColorYield, "Rendimento Mensal")
+                LegendItem(ColorAccYield, stringResource(R.string.sheet_col_yield_acc))
+                LegendItem(ColorYield, stringResource(R.string.sheet_col_yield_monthly))
             }
             "combined" -> {
                 Column {
-                    LegendItem(ColorSalary, "Salário")
+                    LegendItem(ColorSalary, stringResource(R.string.sheet_col_salary))
                 }
                 Column {
-                    LegendItem(ColorYield, "Rendimento Mensal")
-                    LegendItem(ColorAccYield, "Rendimento Acumulado")
+                    LegendItem(ColorYield, stringResource(R.string.sheet_col_yield_monthly))
+                    LegendItem(ColorAccYield, stringResource(R.string.sheet_col_yield_acc))
                 }
             }
         }
@@ -488,7 +490,7 @@ private fun LegendInfoPopup(chartType: String, onDismissRequest: () -> Unit) {
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Informações da Legenda",
+                    text = stringResource(R.string.chart_info_legend),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -509,26 +511,37 @@ private fun LegendInfoPopup(chartType: String, onDismissRequest: () -> Unit) {
     }
 }
 
+@Composable
 private fun getLegendExplanations(chartType: String): Map<String, String> {
+    // Note: Since this is composable function returning a map, we can use stringResource.
+    // However, map keys are strings here. 
+    // Let's manually construct the map with string resources.
+    
     return when (chartType) {
         "overview" -> mapOf(
-            "Salário" to "Receitas (exceto Rendimentos).",
-            "Rendimento Mensal" to "Ganhos de investimentos no mês.",
-            "Rendimento Acumulado" to "Soma de todos os ganhos de investimentos.",
-            "Saldo Acumulado" to "Diferença entre receitas e despesas acumulada.",
-            "Patrimônio" to "Soma de todas as receitas."
+            stringResource(R.string.sheet_col_salary) to stringResource(R.string.summary_info_total), // Reusing existing or need new strings?
+            // Let's stick to what was hardcoded if we don't have exact matches, or add new strings.
+            // But for now, let's keep hardcoded strings in getLegendExplanations OR better, create a composable way to render it directly without map return.
+            // Or just fetch strings here.
+            
+             // "Salário" to "Receitas (exceto Rendimentos)."
+             stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos).",
+             stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
+             stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos.",
+             stringResource(R.string.sheet_col_balance_acc) to "Diferença entre receitas e despesas acumulada.",
+             stringResource(R.string.sheet_col_wealth) to "Soma de todas as receitas."
         )
         "salary" -> mapOf(
-            "Salário" to "Receitas (exceto Rendimentos)."
+            stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos)."
         )
         "yield" -> mapOf(
-            "Rendimento Mensal" to "Ganhos de investimentos no mês.",
-            "Rendimento Acumulado" to "Soma de todos os ganhos de investimentos."
+            stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
+            stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos."
         )
         "combined" -> mapOf(
-            "Salário" to "Receitas (exceto Rendimentos).",
-            "Rendimento Mensal" to "Ganhos de investimentos no mês.",
-            "Rendimento Acumulado" to "Soma de todos os ganhos de investimentos."
+             stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos).",
+             stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
+             stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos."
         )
         else -> emptyMap()
     }

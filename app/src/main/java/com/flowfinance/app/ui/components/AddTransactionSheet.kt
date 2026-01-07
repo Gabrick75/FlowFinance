@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -48,9 +46,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.entity.Category
 import com.flowfinance.app.ui.screens.planning.rememberCategoryIcon
 import com.flowfinance.app.ui.viewmodel.AddTransactionViewModel
@@ -82,7 +82,6 @@ fun AddTransactionSheet(
         viewModel.expenseCategories.collectAsState()
     }
 
-    // Reset selected category if it doesn't exist in the new list
     LaunchedEffect(categories) {
         if (selectedCategory != null && categories.none { it.id == selectedCategory!!.id }) {
             selectedCategory = null
@@ -107,7 +106,7 @@ fun AddTransactionSheet(
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.dialog_cancel))
                 }
             }
         ) {
@@ -126,7 +125,7 @@ fun AddTransactionSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Nova Transação",
+                text = stringResource(R.string.add_transaction_title),
                 style = MaterialTheme.typography.titleLarge
             )
 
@@ -139,7 +138,7 @@ fun AddTransactionSheet(
                         onClick = { selectedType = type },
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = types.size)
                     ) {
-                        Text(text = if (type == TransactionType.INCOME) "Receita" else "Despesa")
+                        Text(text = if (type == TransactionType.INCOME) stringResource(R.string.add_transaction_income) else stringResource(R.string.add_transaction_expense))
                     }
                 }
             }
@@ -148,7 +147,7 @@ fun AddTransactionSheet(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { if (it.all { char -> char.isDigit() || char == '.' }) amount = it },
-                label = { Text("Valor") },
+                label = { Text(stringResource(R.string.add_transaction_value_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
                 prefix = { Text("R$ ") }
@@ -158,14 +157,14 @@ fun AddTransactionSheet(
             OutlinedTextField(
                 value = description,
                 onValueChange = { if (it.length <= maxDescriptionLength) description = it },
-                label = { Text("Descrição") },
+                label = { Text(stringResource(R.string.add_transaction_desc_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 supportingText = { Text("${description.length} / $maxDescriptionLength") }
             )
 
             // Category Selector
             Text(
-                text = "Categoria",
+                text = stringResource(R.string.add_transaction_category_label),
                 style = MaterialTheme.typography.titleMedium
             )
             LazyRow(
@@ -182,11 +181,12 @@ fun AddTransactionSheet(
             }
 
             // Date Selector
+            val datePattern = stringResource(R.string.date_format)
             OutlinedTextField(
-                value = selectedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("pt", "BR"))),
+                value = selectedDate.format(DateTimeFormatter.ofPattern(datePattern, Locale.getDefault())),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Data") },
+                label = { Text(stringResource(R.string.add_transaction_date_label)) },
                 trailingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 interactionSource = remember { MutableInteractionSource() }
@@ -221,7 +221,7 @@ fun AddTransactionSheet(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = amount.isNotEmpty() && description.isNotEmpty() && selectedCategory != null
             ) {
-                Text("Salvar")
+                Text(stringResource(R.string.add_transaction_save))
             }
             
             Spacer(modifier = Modifier.height(16.dp))

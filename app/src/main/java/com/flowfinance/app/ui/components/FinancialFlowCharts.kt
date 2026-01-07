@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.viewmodel.MonthlyFinancialData
 import com.flowfinance.app.util.formatCurrency
 import java.time.format.DateTimeFormatter
@@ -83,7 +85,6 @@ fun GeneralOverviewChart(
                 .pointerInput(Unit) {
                     if (showTooltip) {
                         detectTransformGestures { _, pan, zoom, _ ->
-                            val oldScale = scale
                             scale = (scale * zoom).coerceIn(1f, 5f)
                             val chartWidth = chartSize.width - leftPadding
                             val maxScroll = (chartWidth * scale) - chartWidth
@@ -139,7 +140,7 @@ fun GeneralOverviewChart(
         if (selectedPoint != null && showTooltip) {
             val (index, tapOffset) = selectedPoint!!
             val item = data[index]
-            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
+            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale.getDefault())
             val dateStr = item.yearMonth.format(dateFormatter)
             
             val chartWidth = chartSize.width - leftPadding
@@ -150,11 +151,11 @@ fun GeneralOverviewChart(
                 ChartTooltip(
                     title = dateStr,
                     content = {
-                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
-                        Text("Rend. Mês: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                        Text("Rend. Acum.: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
-                        Text("Saldo Acum.: ${formatCurrency(item.accumulatedBalance, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorBalance)
-                        Text("Patrimônio: ${formatCurrency(item.totalWealth, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorWealth)
+                        Text("${stringResource(R.string.sheet_col_salary)}: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                        Text("${stringResource(R.string.sheet_col_yield_monthly)}: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("${stringResource(R.string.sheet_col_yield_acc)}: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
+                        Text("${stringResource(R.string.sheet_col_balance_acc)}: ${formatCurrency(item.accumulatedBalance, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorBalance)
+                        Text("${stringResource(R.string.sheet_col_wealth)}: ${formatCurrency(item.totalWealth, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorWealth)
                     },
                     targetPosition = Offset(xPos, tapOffset.y),
                     containerSize = chartSize,
@@ -249,7 +250,7 @@ fun SalaryBarChart(
         if (selectedPoint != null && showTooltip) {
             val (index, tapOffset) = selectedPoint!!
             val item = data[index]
-            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
+            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale.getDefault())
             
             val chartWidth = chartSize.width - leftPadding
             val stepX = (chartWidth / data.size) * scale
@@ -259,7 +260,7 @@ fun SalaryBarChart(
                 ChartTooltip(
                     title = item.yearMonth.format(dateFormatter),
                     content = {
-                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                        Text("${stringResource(R.string.sheet_col_salary)}: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
                     },
                     targetPosition = Offset(xPos, tapOffset.y),
                     containerSize = chartSize,
@@ -370,7 +371,7 @@ fun YieldAreaChart(
         if (selectedPoint != null && showTooltip) {
             val (index, tapOffset) = selectedPoint!!
             val item = data[index]
-            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
+            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale.getDefault())
             
             val chartWidth = chartSize.width - leftPadding
             val stepX = (chartWidth / data.size) * scale
@@ -380,8 +381,8 @@ fun YieldAreaChart(
                 ChartTooltip(
                     title = item.yearMonth.format(dateFormatter),
                     content = {
-                        Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                        Text("Rend. Acum: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
+                        Text("${stringResource(R.string.sheet_col_yield_monthly)}: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("${stringResource(R.string.sheet_col_yield_acc)}: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
                     },
                     targetPosition = Offset(xPos, tapOffset.y),
                     containerSize = chartSize,
@@ -484,7 +485,7 @@ fun CombinedChart(
         if (selectedPoint != null && showTooltip) {
             val (index, tapOffset) = selectedPoint!!
             val item = data[index]
-            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale("pt", "BR"))
+            val dateFormatter = DateTimeFormatter.ofPattern("MMM/yy", Locale.getDefault())
             
             val chartWidth = chartSize.width - leftPadding
             val stepX = (chartWidth / data.size) * scale
@@ -494,9 +495,9 @@ fun CombinedChart(
                 ChartTooltip(
                     title = item.yearMonth.format(dateFormatter),
                     content = {
-                        Text("Salário: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
-                        Text("Rend. Mensal: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
-                        Text("Rend. Acum.: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
+                        Text("${stringResource(R.string.sheet_col_salary)}: ${formatCurrency(item.salary, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorSalary)
+                        Text("${stringResource(R.string.sheet_col_yield_monthly)}: ${formatCurrency(item.monthlyYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorYield)
+                        Text("${stringResource(R.string.sheet_col_yield_acc)}: ${formatCurrency(item.accumulatedYield, currency)}", style = MaterialTheme.typography.bodySmall, color = ColorAccYield)
                     },
                     targetPosition = Offset(xPos, tapOffset.y),
                     containerSize = chartSize,
@@ -542,7 +543,7 @@ private fun DrawScope.drawStandardChartGrid(
         )
     }
     
-    val dateFormatter = DateTimeFormatter.ofPattern("MMM", Locale("pt", "BR"))
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM", Locale.getDefault())
     val stepX = (chartWidth / data.size) * scale
     
     clipRect(left = leftPadding, top = 0f, right = size.width, bottom = size.height) {

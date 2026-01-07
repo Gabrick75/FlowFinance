@@ -35,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.screens.settings.shareFile
 import com.flowfinance.app.ui.viewmodel.FinancialFlowViewModel
 import com.flowfinance.app.ui.viewmodel.MonthlyFinancialData
@@ -61,10 +63,10 @@ fun SheetScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Planilha Detalhada") },
+                title = { Text(stringResource(R.string.sheet_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -76,14 +78,14 @@ fun SheetScreen(
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Baixar CSV") },
+                            text = { Text(stringResource(R.string.sheet_download_csv)) },
                             onClick = {
                                 showMenu = false
                                 viewModel.exportSheetToCsv { path ->
                                     if (path != null) {
                                         shareFile(context, path)
                                     } else {
-                                        Toast.makeText(context, "Erro ao exportar", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.sheet_export_error), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
@@ -101,12 +103,12 @@ fun SheetScreen(
         ) {
             // Header Row
             Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)) {
-                TableCell(text = "Data", weight = 1f, isHeader = true)
-                TableCell(text = "Salário", weight = 1f, isHeader = true)
-                TableCell(text = "Rend. Mensal", weight = 1f, isHeader = true)
-                TableCell(text = "Rend. Acum.", weight = 1f, isHeader = true)
-                TableCell(text = "Saldo Acum.", weight = 1f, isHeader = true)
-                TableCell(text = "Patrimônio", weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_date), weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_salary), weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_yield_monthly), weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_yield_acc), weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_balance_acc), weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_wealth), weight = 1f, isHeader = true)
             }
 
             // Data Rows
@@ -114,7 +116,7 @@ fun SheetScreen(
                 itemsIndexed(uiState.monthlyData) { index, item ->
                     val bgColor = if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
                     Row(modifier = Modifier.background(bgColor)) {
-                        val dateStr = item.yearMonth.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale("pt", "BR")))
+                        val dateStr = item.yearMonth.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()))
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                         
                         TableCell(text = dateStr, weight = 1f)

@@ -40,11 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.viewmodel.CategoryMetric
 import com.flowfinance.app.ui.viewmodel.ExpenseAnalysisUiState
 import com.flowfinance.app.ui.viewmodel.ExpenseAnalysisViewModel
@@ -66,14 +68,14 @@ fun ExpenseAnalysisScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        "Análise de Gastos",
+                        stringResource(R.string.expense_analysis_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -100,7 +102,7 @@ fun ExpenseAnalysisScreen(
                 // 1. Resumo de Médias
                 item {
                     Text(
-                        text = "Médias de Gasto",
+                        text = stringResource(R.string.expense_avg_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -110,19 +112,19 @@ fun ExpenseAnalysisScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         AverageCard(
-                            title = "Diário",
+                            title = stringResource(R.string.expense_avg_daily),
                             amount = uiState.averageDaily,
                             currency = uiState.currency,
                             modifier = Modifier.weight(1f)
                         )
                         AverageCard(
-                            title = "Semanal",
+                            title = stringResource(R.string.expense_avg_weekly),
                             amount = uiState.averageWeekly,
                             currency = uiState.currency,
                             modifier = Modifier.weight(1f)
                         )
                         AverageCard(
-                            title = "Mensal",
+                            title = stringResource(R.string.expense_avg_monthly),
                             amount = uiState.averageMonthly,
                             currency = uiState.currency,
                             modifier = Modifier.weight(1f)
@@ -133,7 +135,7 @@ fun ExpenseAnalysisScreen(
                 // 2. Dias de Maior Gasto (Picos)
                 item {
                     Text(
-                        text = "Picos de Gasto",
+                        text = stringResource(R.string.expense_peaks_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -143,14 +145,14 @@ fun ExpenseAnalysisScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         PeakCard(
-                            title = "Dia da Semana",
-                            value = uiState.peakDayOfWeek?.first?.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } ?: "-",
-                            subtitle = "Maior Média"
+                            title = stringResource(R.string.expense_peak_day_week),
+                            value = uiState.peakDayOfWeek?.first?.getDisplayName(TextStyle.FULL, Locale.getDefault())?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } ?: "-",
+                            subtitle = stringResource(R.string.expense_peak_day_week_sub)
                         )
                         PeakCard(
-                            title = "Dia do Mês",
+                            title = stringResource(R.string.expense_peak_day_month),
                             value = uiState.peakDayOfMonth?.toString() ?: "-",
-                            subtitle = "Maior Volume"
+                            subtitle = stringResource(R.string.expense_peak_day_month_sub)
                         )
                     }
                 }
@@ -158,12 +160,12 @@ fun ExpenseAnalysisScreen(
                 // 3. Heatmap Semanal
                 item {
                     Text(
-                        text = "Intensidade Semanal",
+                        text = stringResource(R.string.expense_heatmap_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Dias com maior volume de despesas",
+                        text = stringResource(R.string.expense_heatmap_sub),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -174,7 +176,7 @@ fun ExpenseAnalysisScreen(
                 // 4. Categorias (Recorrentes vs Ocasionais)
                 item {
                     Text(
-                        text = "Análise por Categoria",
+                        text = stringResource(R.string.expense_category_analysis),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -266,7 +268,7 @@ fun WeeklyHeatmap(data: Map<DayOfWeek, Double>) {
                     Spacer(modifier = Modifier.height(4.dp))
                     // Label
                     Text(
-                        text = day.getDisplayName(TextStyle.SHORT, Locale("pt", "BR")).take(3),
+                        text = day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(3),
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
@@ -278,7 +280,7 @@ fun WeeklyHeatmap(data: Map<DayOfWeek, Double>) {
 @Composable
 fun CategoryAnalysisSection(uiState: ExpenseAnalysisUiState) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Recorrentes", "Ocasionais")
+    val tabs = listOf(stringResource(R.string.expense_tab_recurring), stringResource(R.string.expense_tab_occasional))
     
     Column {
         TabRow(selectedTabIndex = selectedTab) {
@@ -307,7 +309,7 @@ fun CategoryAnalysisSection(uiState: ExpenseAnalysisUiState) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Nenhuma categoria encontrada neste grupo.",
+                    text = stringResource(R.string.expense_empty_category),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -357,7 +359,7 @@ fun CategoryMetricItem(metric: CategoryMetric, currency: String) {
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "${metric.transactionCount} transações",
+                    text = stringResource(R.string.expense_transactions_count, metric.transactionCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -365,7 +367,7 @@ fun CategoryMetricItem(metric: CategoryMetric, currency: String) {
             
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Ticket Médio",
+                    text = stringResource(R.string.expense_ticket_avg),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

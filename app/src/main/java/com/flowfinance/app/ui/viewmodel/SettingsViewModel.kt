@@ -2,6 +2,8 @@ package com.flowfinance.app.ui.viewmodel
 
 import android.content.Context
 import android.net.Uri
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -71,6 +73,18 @@ class SettingsViewModel @Inject constructor(
             userPreferencesRepository.setCurrency(currency)
         }
     }
+
+    fun updateLanguage(language: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setLanguage(language)
+            val localeList = if (language.isNotEmpty()) {
+                LocaleListCompat.forLanguageTags(language)
+            } else {
+                LocaleListCompat.getEmptyLocaleList()
+            }
+            AppCompatDelegate.setApplicationLocales(localeList)
+        }
+    }
     
     fun updateReminderSettings(hour: Int, minute: Int, intervalDays: Int, isEnabled: Boolean) {
         viewModelScope.launch {
@@ -93,24 +107,10 @@ class SettingsViewModel @Inject constructor(
         }
 
         if (nextTrigger.before(now)) {
-            nextTrigger.add(Calendar.DAY_OF_YEAR, 1) // If time passed, try tomorrow first? 
-            // Or strictly follow interval from now?
-            // User requested "weekly reminder", now changing to custom interval.
-            // Let's assume we want to trigger at next valid time.
-            // For simple implementation, if time passed today, we add 1 day to check if it matches interval logic or just start from tomorrow.
-            // But periodic work runs every X days. 
-            // We set initial delay to reach the target time.
-            
-            // To be consistent with "every X days starting at HH:MM":
-            // We just ensure nextTrigger is in future.
+            nextTrigger.add(Calendar.DAY_OF_YEAR, 1) 
         }
         
-        // Wait, PeriodicWorkRequest interval is fixed time. 
-        // If we want "Every Sunday", we need 7 days interval.
-        // If user selects custom interval (e.g. 3 days), it runs every 3 days.
-        
         val initialDelay = nextTrigger.timeInMillis - now.timeInMillis
-        // Ensure positive delay
         val delay = if (initialDelay < 0) initialDelay + TimeUnit.DAYS.toMillis(1) else initialDelay
 
         val reminderRequest = PeriodicWorkRequestBuilder<NotificationWorker>(intervalDays.toLong(), TimeUnit.DAYS)
@@ -142,9 +142,7 @@ class SettingsViewModel @Inject constructor(
 
     fun clearAllData() {
         viewModelScope.launch {
-            // First delete all transactions
             transactionRepository.deleteAllTransactions()
-            // Then delete all custom categories
             categoryRepository.deleteAllCustomCategories()
         }
     }
@@ -152,7 +150,6 @@ class SettingsViewModel @Inject constructor(
     fun exportDataToCsv(onResult: (String?) -> Unit) {
         viewModelScope.launch {
             try {
-                // Fetch data
                 val transactionsWithCategory = transactionRepository.getAllTransactionsWithCategory().first()
                 val allCategories = categoryRepository.getAllCategories().first()
                 
@@ -168,24 +165,20 @@ class SettingsViewModel @Inject constructor(
                      writer.write(" xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\"\n")
                      writer.write(" xmlns:html=\"http://www.w3.org/TR/REC-html40\">\n")
                      
-                     // Style for headers
                      writer.write(" <Styles>\n")
                      writer.write("  <Style ss:ID=\"Header\">\n")
                      writer.write("   <Font ss:Bold=\"1\"/>\n")
                      writer.write("  </Style>\n")
                      writer.write(" </Styles>\n")
                      
-                     // 1. Sheet: Transações
                      writer.write(" <Worksheet ss:Name=\"Transacoes\">\n")
                      writer.write("  <Table>\n")
-                     // Headers
                      writer.write("   <Row ss:StyleID=\"Header\">\n")
                      listOf("ID", "Descrição", "Valor", "Data", "Tipo", "Categoria").forEach {
                          writer.write("    <Cell><Data ss:Type=\"String\">$it</Data></Cell>\n")
                      }
                      writer.write("   </Row>\n")
                      
-                     // Data
                      transactionsWithCategory.forEach { (transaction, category) ->
                          writer.write("   <Row>\n")
                          writer.write("    <Cell><Data ss:Type=\"Number\">${transaction.id}</Data></Cell>\n")
@@ -199,10 +192,8 @@ class SettingsViewModel @Inject constructor(
                      writer.write("  </Table>\n")
                      writer.write(" </Worksheet>\n")
                      
-                     // 2. Sheet: Categorias
                      writer.write(" <Worksheet ss:Name=\"Categorias\">\n")
                      writer.write("  <Table>\n")
-                     // Headers
                      writer.write("   <Row ss:StyleID=\"Header\">\n")
                      listOf("ID", "Nome", "Orçamento Mensal", "Padrão").forEach {
                          writer.write("    <Cell><Data ss:Type=\"String\">$it</Data></Cell>\n")
@@ -222,7 +213,6 @@ class SettingsViewModel @Inject constructor(
                      writer.write("  </Table>\n")
                      writer.write(" </Worksheet>\n")
 
-                     // 3. Sheet: Fluxo Financeiro
                      writer.write(" <Worksheet ss:Name=\"Fluxo Financeiro\">\n")
                      writer.write("  <Table>\n")
                      writer.write("   <Row ss:StyleID=\"Header\">\n")
@@ -282,16 +272,13 @@ class SettingsViewModel @Inject constructor(
                      writer.write("  </Table>\n")
                      writer.write(" </Worksheet>\n")
 
-                     // 4. Sheet: Tendência por Categoria
                      writer.write(" <Worksheet ss:Name=\"Tendencia por Categoria\">\n")
                      writer.write("  <Table>\n")
                      
-                     // Filter categories as per Trend screen logic
                      val trendCategories = allCategories.filter { 
                         it.name != "Salário" && it.name != "Investimentos" && it.name != "Rendimentos"
                      }
 
-                     // Headers
                      writer.write("   <Row ss:StyleID=\"Header\">\n")
                      writer.write("    <Cell><Data ss:Type=\"String\">Data</Data></Cell>\n")
                      trendCategories.forEach { category ->
@@ -331,7 +318,6 @@ class SettingsViewModel @Inject constructor(
                      writer.write("  </Table>\n")
                      writer.write(" </Worksheet>\n")
 
-                     // 5. Sheet: Resumo Financeiro
                      writer.write(" <Worksheet ss:Name=\"Resumo Financeiro\">\n")
                      writer.write("  <Table>\n")
                      writer.write("   <Row ss:StyleID=\"Header\">\n")
@@ -340,12 +326,10 @@ class SettingsViewModel @Inject constructor(
                      }
                      writer.write("   </Row>\n")
 
-                     // Calculate summaries
                      val currentDate = LocalDate.now()
                      val currentYear = currentDate.year
                      val currentMonth = YearMonth.from(currentDate)
                      
-                     // Helper for summary
                      fun getSummary(txs: List<TransactionWithCategory>): Triple<Double, Double, Double> {
                          var income = 0.0
                          var expense = 0.0
@@ -356,7 +340,6 @@ class SettingsViewModel @Inject constructor(
                          return Triple(income, expense, income - expense)
                      }
 
-                     // Total
                      val total = getSummary(transactionsWithCategory)
                      writer.write("   <Row>\n")
                      writer.write("    <Cell><Data ss:Type=\"String\">Total (Desde o Início)</Data></Cell>\n")
@@ -365,7 +348,6 @@ class SettingsViewModel @Inject constructor(
                      writer.write("    <Cell><Data ss:Type=\"Number\">${total.third}</Data></Cell>\n")
                      writer.write("   </Row>\n")
 
-                     // Annual
                      val annualTxs = transactionsWithCategory.filter { it.transaction.date.year == currentYear }
                      val annual = getSummary(annualTxs)
                      writer.write("   <Row>\n")
@@ -375,7 +357,6 @@ class SettingsViewModel @Inject constructor(
                      writer.write("    <Cell><Data ss:Type=\"Number\">${annual.third}</Data></Cell>\n")
                      writer.write("   </Row>\n")
 
-                     // Monthly
                      val monthlyTxs = transactionsWithCategory.filter { YearMonth.from(it.transaction.date) == currentMonth }
                      val monthly = getSummary(monthlyTxs)
                      val monthStr = currentMonth.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale("pt", "BR")))
@@ -412,7 +393,6 @@ class SettingsViewModel @Inject constructor(
     fun exportBackup(password: String, onResult: (String?) -> Unit) {
         viewModelScope.launch {
             try {
-                // 1. Gather all data
                 val transactions = transactionRepository.getAllTransactions().first()
                 val categories = categoryRepository.getAllCategories().first()
                 val userPrefs = userData.first()
@@ -423,12 +403,10 @@ class SettingsViewModel @Inject constructor(
                     userData = userPrefs
                 )
                 
-                // 2. Encrypt Payload
                 val gson = Gson()
                 val payloadJson = gson.toJson(payload)
                 val encryptedPayload = CryptoUtils.encrypt(payloadJson, password)
                 
-                // 3. Create Backup File Structure
                 val metadata = BackupMetadata(
                     appVersion = BuildConfig.VERSION_NAME,
                     dbVersion = 3,
@@ -440,7 +418,6 @@ class SettingsViewModel @Inject constructor(
                     encryptedData = encryptedPayload
                 )
 
-                // 4. Save to file
                 val backupFileJson = gson.toJson(backupFile)
                 val fileName = "flowfinance_backup_${System.currentTimeMillis()}.flowbackup"
                 val file = File(context.getExternalFilesDir(null), fileName)
@@ -457,7 +434,6 @@ class SettingsViewModel @Inject constructor(
     fun importBackup(uri: Uri, password: String, onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
             try {
-                // 1. Read file
                 val inputStream = context.contentResolver.openInputStream(uri)
                 val fileContent = inputStream?.bufferedReader()?.use { it.readText() }
                 
@@ -466,7 +442,6 @@ class SettingsViewModel @Inject constructor(
                     return@launch
                 }
                 
-                // 2. Parse Backup File Structure (Metadata + Encrypted Data)
                 val gson = Gson()
                 val backupFile = try {
                      gson.fromJson(fileContent, BackupFile::class.java)
@@ -475,7 +450,6 @@ class SettingsViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 3. Decrypt Payload
                 val jsonPayloadString = try {
                     CryptoUtils.decrypt(backupFile.encryptedData, password)
                 } catch (e: Exception) {
@@ -483,25 +457,19 @@ class SettingsViewModel @Inject constructor(
                     return@launch
                 }
 
-                // 4. Deserialize Payload
                 val backupPayload = gson.fromJson(jsonPayloadString, BackupPayload::class.java)
 
-                // 5. Restore Data
-                // Clear existing
                 transactionRepository.deleteAllTransactions()
-                categoryRepository.deleteAllCategories() // Now deletes ALL categories, including defaults
+                categoryRepository.deleteAllCategories()
                 
-                // Restore Categories
                 backupPayload.categories.forEach { category ->
                     categoryRepository.insertCategory(category)
                 }
 
-                // Restore Transactions
                 backupPayload.transactions.forEach { transaction ->
                      transactionRepository.insertTransaction(transaction)
                 }
                 
-                // Restore User Preferences
                 backupPayload.userData?.let {
                     userPreferencesRepository.setUserName(it.userName)
                     userPreferencesRepository.setCurrency(it.currency)
@@ -512,6 +480,14 @@ class SettingsViewModel @Inject constructor(
                         it.reminderIntervalDays,
                         it.isReminderEnabled
                     )
+                    userPreferencesRepository.setLanguage(it.language)
+                    
+                    val localeList = if (it.language.isNotEmpty()) {
+                        LocaleListCompat.forLanguageTags(it.language)
+                    } else {
+                        LocaleListCompat.getEmptyLocaleList()
+                    }
+                    AppCompatDelegate.setApplicationLocales(localeList)
                 }
                 
                 onResult(true, "Backup importado com sucesso!")

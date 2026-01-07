@@ -32,10 +32,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.components.CombinedChart
 import com.flowfinance.app.ui.components.GeneralOverviewChart
 import com.flowfinance.app.ui.components.SalaryBarChart
@@ -58,14 +60,14 @@ fun FinancialFlowScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        "Fluxo Financeiro",
+                        stringResource(R.string.nav_financial_flow),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -84,7 +86,7 @@ fun FinancialFlowScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Não há dados para exibir.\nVocê pode inseri-los na tela inicial clicando no sinal de \"+\".",
+                    text = stringResource(R.string.trends_no_data_display), // Using a generic "no data" string
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -101,7 +103,7 @@ fun FinancialFlowScreen(
                 // 1. Visualização Geral
                 item {
                     ChartCard(
-                        title = "Visualização Geral",
+                        title = stringResource(R.string.panel_chart_overview),
                         onClick = { onChartClick("overview") }
                     ) {
                         GeneralOverviewChart(
@@ -122,7 +124,7 @@ fun FinancialFlowScreen(
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
                             ChartCard(
-                                title = "Salário",
+                                title = stringResource(R.string.chart_title_salary),
                                 onClick = { onChartClick("salary") }
                             ) {
                                 SalaryBarChart(
@@ -136,7 +138,7 @@ fun FinancialFlowScreen(
                         }
                         Box(modifier = Modifier.weight(1f)) {
                             ChartCard(
-                                title = "Rendimentos",
+                                title = stringResource(R.string.chart_title_yield),
                                 onClick = { onChartClick("yield") }
                             ) {
                                 YieldAreaChart(
@@ -154,7 +156,7 @@ fun FinancialFlowScreen(
                 // 3. Salário X Rendimentos
                 item {
                     ChartCard(
-                        title = "Salário X Rendimentos",
+                        title = stringResource(R.string.chart_title_combined),
                         onClick = { onChartClick("combined") }
                     ) {
                         CombinedChart(
@@ -173,7 +175,7 @@ fun FinancialFlowScreen(
                         onClick = onShowSheetClick,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Mostrar Planilha")
+                        Text(stringResource(R.string.trends_show_sheet))
                     }
                     Spacer(modifier = Modifier.height(32.dp))
                 }

@@ -1,0 +1,237 @@
+<resources>
+    <string name="app_name">FlowFinance</string>
+    <string name="app_version_name">1.1.1</string>
+    
+    <!-- Navigation / Screens -->
+    <string name="nav_home">Início</string>
+    <string name="nav_history">Histórico</string>
+    <string name="nav_planning">Planejamento</string>
+    <string name="nav_panel">Painel</string>
+    <string name="nav_settings">Configurações</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="nav_manage_budgets">Gerenciar Metas</string>
+    <string name="nav_financial_flow">Fluxo Financeiro</string>
+    <string name="nav_sheet">Planilha</string>
+    <string name="nav_category_trends">Tendência por Categoria</string>
+    <string name="nav_trends_sheet">Planilha de Tendências</string>
+    <string name="nav_expense_analysis">Análise de Gastos</string>
+    <string name="nav_financial_summary">Resumo Financeiro</string>
+    <string name="nav_monthly_history">Histórico Mensal</string>
+    <string name="nav_chart_detail">Detalhe do Gráfico</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_balance_total">Saldo Total</string>
+    <string name="dashboard_income">Receitas</string>
+    <string name="dashboard_expenses">Despesas</string>
+    <string name="dashboard_expenses_by_category">Despesas por Categoria</string>
+    <string name="dashboard_recent_transactions">Últimas Transações</string>
+    <string name="dashboard_see_all">Ver todas</string>
+
+    <!-- Transactions Screen -->
+    <string name="transactions_title">Histórico</string>
+    <string name="transactions_subtitle">Visualize e gerencie suas transações.</string>
+    <string name="transactions_search_placeholder">Buscar transação...</string>
+    <string name="transactions_empty">Nenhuma transação encontrada</string>
+    <string name="transactions_expense_daily">Gasto: %s</string>
+    <string name="transactions_delete_desc">Excluir</string>
+    <string name="prev_month_desc">Mês Anterior</string>
+    <string name="next_month_desc">Próximo Mês</string>
+    <string name="date_header_format">dd \'de\' MMM, EEEE</string>
+
+    <!-- Planning Screen -->
+    <string name="planning_title">Metas por Categoria</string>
+    <string name="planning_subtitle">Acompanhe seus gastos mensais em relação ao planejado.</string>
+    <string name="planning_budget_progress">/ %s</string>
+
+    <!-- User Profile Screen -->
+    <string name="user_profile_title">Perfil do Usuário</string>
+    <string name="back">Voltar</string>
+    <string name="name_label">Nome</string>
+    <string name="name_placeholder">Seu nome</string>
+    <string name="currency_label">Moeda Padrão</string>
+    <string name="language_label">Idioma</string>
+    <string name="save_changes">Salvar Alterações</string>
+    
+    <!-- Settings Screen -->
+    <string name="settings_title">Configurações</string>
+    <string name="settings_profile_section">Perfil</string>
+    <string name="settings_profile_subtitle">Toque para editar perfil e moeda (%s)</string>
+    <string name="settings_preferences_section">Preferências</string>
+    <string name="settings_dark_theme">Tema Escuro</string>
+    <string name="settings_notifications">Configurar Notificações</string>
+    <string name="settings_data_section">Dados</string>
+    <string name="settings_export_data">Exportar Dados (Planilha)</string>
+    <string name="settings_export_subtitle">Salvar planilha completa (.xls)</string>
+    <string name="settings_clear_data">Limpar Dados</string>
+    <string name="settings_clear_subtitle">Apagar todas as transações</string>
+    <string name="settings_backup_section">Backup</string>
+    <string name="settings_export_backup">Exportar Backup</string>
+    <string name="settings_export_backup_subtitle">Salvar cópia criptografada de todos os dados</string>
+    <string name="settings_import_backup">Importar Backup</string>
+    <string name="settings_import_backup_subtitle">Restaurar dados de um arquivo de backup</string>
+    <string name="settings_view_source">Ver código fonte</string>
+    <string name="settings_view_docs">Ver documentação</string>
+    <string name="settings_developed_by">Desenvolvido por Gabrick75</string>
+
+    <!-- Settings Dialogs -->
+    <string name="dialog_notification_title">Configurar Notificações</string>
+    <string name="dialog_notification_desc">Defina o horário e a frequência do lembrete para registrar suas despesas.</string>
+    <string name="dialog_notification_time">Horário do Lembrete:</string>
+    <string name="dialog_notification_interval">Intervalo (dias):</string>
+    <string name="dialog_notification_test">Testar Notificação Agora</string>
+    <string name="dialog_notification_saved">Lembrete configurado!</string>
+    <string name="dialog_delete_title">Atenção: Apagar Tudo</string>
+    <string name="dialog_delete_desc">Esta ação é irreversível. Todos os seus dados serão apagados permanentemente.</string>
+    <string name="dialog_delete_confirm_text">Digite \"%s\" para confirmar:</string>
+    <string name="dialog_delete_phrase">tenho certeza</string>
+    <string name="dialog_delete_button">Apagar Tudo</string>
+    <string name="dialog_delete_success">Dados apagados com sucesso.</string>
+    <string name="dialog_export_title">Exportar Backup</string>
+    <string name="dialog_export_desc">Defina uma senha para criptografar seu backup.</string>
+    <string name="dialog_password_label">Senha</string>
+    <string name="dialog_confirm_password_label">Confirmar Senha</string>
+    <string name="dialog_export_button">Gerar Backup</string>
+    <string name="dialog_password_mismatch">As senhas não coincidem ou estão vazias.</string>
+    <string name="dialog_import_title">Importar Backup</string>
+    <string name="dialog_import_found">Arquivo de backup encontrado.</string>
+    <string name="dialog_app_version">Versão do App: %s</string>
+    <string name="dialog_date">Data: %s</string>
+    <string name="dialog_import_password_desc">Digite a senha para restaurar os dados.</string>
+    <string name="dialog_import_warning">Atenção: Todos os dados atuais serão substituídos.</string>
+    <string name="dialog_import_button">Importar</string>
+    <string name="dialog_import_file_error">Arquivo inválido ou corrompido.</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_save">Salvar</string>
+
+    <!-- Panel Screen -->
+    <string name="panel_title">Painel Financeiro</string>
+    <string name="panel_subtitle">Acesse ferramentas avançadas de análise.</string>
+    <string name="panel_chart_overview">Visualização Geral</string>
+    <string name="panel_annual_summary">Total Anual (%s)</string>
+    <string name="panel_btn_financial_flow">Fluxo Financeiro</string>
+    <string name="panel_btn_category_trends">Tendência por Categoria</string>
+    <string name="panel_btn_expense_analysis">Análise de Gastos</string>
+    <string name="panel_btn_financial_summary">Resumo Financeiro</string>
+
+    <!-- Manage Budgets -->
+    <string name="manage_budgets_title">Gerenciar Metas</string>
+    <string name="manage_budgets_new_category">Nova Categoria</string>
+    <string name="manage_budgets_edit_category">Editar Categoria</string>
+    <string name="manage_budgets_name_label">Nome da Categoria</string>
+    <string name="manage_budgets_color_label">Cor</string>
+    <string name="manage_budgets_icon_label">Ícone</string>
+    <string name="manage_budgets_create">Criar</string>
+    <string name="manage_budgets_save">Salvar</string>
+    <string name="manage_budgets_target">Meta</string>
+
+    <!-- Add Transaction -->
+    <string name="add_transaction_title">Nova Transação</string>
+    <string name="add_transaction_income">Receita</string>
+    <string name="add_transaction_expense">Despesa</string>
+    <string name="add_transaction_value_label">Valor</string>
+    <string name="add_transaction_desc_label">Descrição</string>
+    <string name="add_transaction_category_label">Categoria</string>
+    <string name="add_transaction_date_label">Data</string>
+    <string name="add_transaction_save">Salvar</string>
+    <string name="date_format">dd/MM/yyyy</string>
+
+    <!-- FullScreenChart -->
+    <string name="chart_detail_title">Detalhes do Gráfico</string>
+    <string name="chart_info_legend">Informações da Legenda</string>
+    <string name="chart_download">Baixar Gráfico</string>
+    <string name="chart_save_success">Gráfico salvo com sucesso!</string>
+    <string name="chart_save_failure">Falha ao salvar gráfico.</string>
+    <string name="chart_title_overview">Visualização Geral</string>
+    <string name="chart_title_salary">Salário</string>
+    <string name="chart_title_yield">Rendimentos</string>
+    <string name="chart_title_combined">Salário X Rendimentos</string>
+    <string name="chart_title_category_line">Evolução por Categoria</string>
+    <string name="chart_title_category_stacked">Acumulado por Categoria</string>
+    <string name="chart_legend_title">Legenda de Cores:</string>
+    <string name="chart_info_title">Informações</string>
+    <string name="chart_categories_title">Categorias:</string>
+    
+    <!-- Sheet Screen -->
+    <string name="sheet_title">Planilha Detalhada</string>
+    <string name="sheet_download_csv">Baixar CSV</string>
+    <string name="sheet_export_error">Erro ao exportar</string>
+    <string name="sheet_col_date">Data</string>
+    <string name="sheet_col_salary">Salário</string>
+    <string name="sheet_col_yield_monthly">Rend. Mensal</string>
+    <string name="sheet_col_yield_acc">Rend. Acum.</string>
+    <string name="sheet_col_balance_acc">Saldo Acum.</string>
+    <string name="sheet_col_wealth">Patrimônio</string>
+
+    <!-- Category Trends Sheet -->
+    <string name="trends_sheet_title">Planilha de Tendências</string>
+
+    <!-- Expense Analysis -->
+    <string name="expense_analysis_title">Análise de Gastos</string>
+    <string name="expense_avg_title">Médias de Gasto</string>
+    <string name="expense_avg_daily">Diário</string>
+    <string name="expense_avg_weekly">Semanal</string>
+    <string name="expense_avg_monthly">Mensal</string>
+    <string name="expense_peaks_title">Picos de Gasto</string>
+    <string name="expense_peak_day_week">Dia da Semana</string>
+    <string name="expense_peak_day_week_sub">Maior Média</string>
+    <string name="expense_peak_day_month">Dia do Mês</string>
+    <string name="expense_peak_day_month_sub">Maior Volume</string>
+    <string name="expense_heatmap_title">Intensidade Semanal</string>
+    <string name="expense_heatmap_sub">Dias com maior volume de despesas</string>
+    <string name="expense_category_analysis">Análise por Categoria</string>
+    <string name="expense_tab_recurring">Recorrentes</string>
+    <string name="expense_tab_occasional">Ocasionais</string>
+    <string name="expense_empty_category">Nenhuma categoria encontrada neste grupo.</string>
+    <string name="expense_ticket_avg">Ticket Médio</string>
+    <string name="expense_transactions_count">%d transações</string>
+
+    <!-- Financial Summary -->
+    <string name="summary_title">Resumo Financeiro</string>
+    <string name="summary_total_current">Total Atual (Desde o Início)</string>
+    <string name="summary_total_annual">Total Anual (%s)</string>
+    <string name="summary_current_month">Mês Atual</string>
+    <string name="summary_view_history">Ver Histórico Mensal</string>
+    <string name="summary_info_title">Entenda os Valores</string>
+    <string name="summary_info_total">Valor Total: Montante geral disponível (receitas).</string>
+    <string name="summary_info_spent">Gasto Total: Total de despesas realizadas.</string>
+    <string name="summary_info_remaining">Não Gasto Total: Valor restante (Total - Gasto).</string>
+    <string name="summary_col_category">Categoria</string>
+    <string name="summary_col_percentage">Porcentagem</string>
+    <string name="summary_col_value">Valor</string>
+    <string name="summary_row_total">Valor Total</string>
+    <string name="summary_row_spent">Gasto Total</string>
+    <string name="summary_row_remaining">Não Gasto Total</string>
+
+    <!-- Monthly History -->
+    <string name="history_title">Histórico Mensal (%s)</string>
+    <string name="history_info_title">Sobre o Histórico</string>
+    <string name="history_info_desc1">Esta tela apresenta o resumo financeiro mês a mês do ano atual.</string>
+    <string name="history_info_desc2">Cada tabela detalha o total recebido, gasto e restante para o respectivo mês.</string>
+
+    <!-- Category Trends Screen -->
+    <string name="trends_title">Tendência por Categoria</string>
+    <string name="trends_empty">Não há dados suficientes para exibir tendências por categoria.</string>
+    <string name="trends_pie_title">Participação por Categoria</string>
+    <string name="trends_ranking_title">Ranking de Gastos</string>
+    <string name="trends_tab_total">Total</string>
+    <string name="trends_tab_monthly">Mensal</string>
+    <string name="trends_line_title">Tendência Mensal</string>
+    <string name="trends_stacked_title">Composição dos Gastos</string>
+    <string name="trends_show_sheet">Mostrar Planilha Detalhada</string>
+    <string name="trends_chart_total_general">Total Geral (Desde Sempre)</string>
+    <string name="trends_chart_current_month">Mês Atual</string>
+    <string name="trends_chart_evolution">Evolução por Categoria</string>
+    <string name="trends_chart_accumulated">Acumulado por Categoria</string>
+    <string name="trends_no_data_month">Sem dados para este mês</string>
+    <string name="trends_no_data_display">Sem dados para exibir</string>
+
+    <!-- Languages -->
+    <string name="lang_en">Inglês</string>
+    <string name="lang_pt">Português (Brasil)</string>
+    <string name="lang_es">Espanhol</string>
+    
+    <!-- Main Activity -->
+    <string name="permission_denied_notification">Permissão de notificação negada. Os lembretes não funcionarão.</string>
+    <string name="fab_new_transaction">Nova Transação</string>
+    <string name="fab_manage_budgets">Gerenciar Metas</string>
+</resources>

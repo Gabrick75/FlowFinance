@@ -27,6 +27,7 @@ class UserPreferencesRepository @Inject constructor(
     private val REMINDER_MINUTE_KEY = intPreferencesKey("reminder_minute")
     private val REMINDER_INTERVAL_DAYS_KEY = intPreferencesKey("reminder_interval_days")
     private val REMINDER_ENABLED_KEY = booleanPreferencesKey("reminder_enabled")
+    private val LANGUAGE_KEY = stringPreferencesKey("language")
 
     val userData: Flow<UserData> = context.dataStore.data
         .map { preferences ->
@@ -37,7 +38,8 @@ class UserPreferencesRepository @Inject constructor(
                 reminderHour = preferences[REMINDER_HOUR_KEY] ?: 9,
                 reminderMinute = preferences[REMINDER_MINUTE_KEY] ?: 0,
                 reminderIntervalDays = preferences[REMINDER_INTERVAL_DAYS_KEY] ?: 7,
-                isReminderEnabled = preferences[REMINDER_ENABLED_KEY] ?: true
+                isReminderEnabled = preferences[REMINDER_ENABLED_KEY] ?: true,
+                language = preferences[LANGUAGE_KEY] ?: ""
             )
         }
 
@@ -67,6 +69,12 @@ class UserPreferencesRepository @Inject constructor(
             preferences[REMINDER_ENABLED_KEY] = isEnabled
         }
     }
+
+    suspend fun setLanguage(language: String) {
+        context.dataStore.edit { preferences ->
+            preferences[LANGUAGE_KEY] = language
+        }
+    }
 }
 
 data class UserData(
@@ -76,5 +84,6 @@ data class UserData(
     val reminderHour: Int = 9,
     val reminderMinute: Int = 0,
     val reminderIntervalDays: Int = 7,
-    val isReminderEnabled: Boolean = true
+    val isReminderEnabled: Boolean = true,
+    val language: String = ""
 )

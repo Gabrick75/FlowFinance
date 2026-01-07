@@ -39,9 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.screens.dashboard.TransactionItem
 import com.flowfinance.app.util.formatCurrency
@@ -65,12 +67,12 @@ fun TransactionsScreen(
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
                 Text(
-                    text = "Histórico",
+                    text = stringResource(R.string.transactions_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Visualize e gerencie suas transações.",
+                    text = stringResource(R.string.transactions_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -82,15 +84,15 @@ fun TransactionsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { viewModel.previousMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.prev_month_desc))
                     }
                     Text(
-                        text = uiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("pt", "BR")))
+                        text = uiState.currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                         style = MaterialTheme.typography.titleMedium
                     )
                     IconButton(onClick = { viewModel.nextMonth() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month")
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(R.string.next_month_desc))
                     }
                 }
                 // Search Bar
@@ -100,7 +102,7 @@ fun TransactionsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp),
-                    placeholder = { Text("Buscar transação...") },
+                    placeholder = { Text(stringResource(R.string.transactions_search_placeholder)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     singleLine = true
                 )
@@ -158,7 +160,7 @@ fun TransactionsScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.transactions_delete_desc),
                                     modifier = Modifier.scale(scale),
                                     tint = Color.White
                                 )
@@ -178,7 +180,7 @@ fun TransactionsScreen(
                 item {
                     Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
                          Text(
-                             text = "Nenhuma transação encontrada",
+                             text = stringResource(R.string.transactions_empty),
                              color = MaterialTheme.colorScheme.onSurfaceVariant
                          )
                     }
@@ -197,14 +199,15 @@ fun DateHeader(date: java.time.LocalDate, dailyTotal: Double, currencyCode: Stri
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        val dateFormat = stringResource(R.string.date_header_format)
         Text(
-            text = date.format(DateTimeFormatter.ofPattern("dd 'de' MMM, EEEE", Locale("pt", "BR"))),
+            text = date.format(DateTimeFormatter.ofPattern(dateFormat, Locale.getDefault())),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (dailyTotal > 0) {
             Text(
-                text = "Gasto: ${formatCurrency(dailyTotal, currencyCode)}",
+                text = stringResource(R.string.transactions_expense_daily, formatCurrency(dailyTotal, currencyCode)),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold

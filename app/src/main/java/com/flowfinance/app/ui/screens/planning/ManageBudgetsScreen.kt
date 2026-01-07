@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,9 +67,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.entity.Category
 import com.flowfinance.app.ui.viewmodel.DeleteResult
 import com.flowfinance.app.ui.viewmodel.ManageBudgetsViewModel
@@ -128,17 +129,17 @@ fun ManageBudgetsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Gerenciar Metas") },
+                title = { Text(stringResource(R.string.manage_budgets_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { isCreating = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Nova Categoria")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.manage_budgets_new_category))
             }
         }
     ) { padding ->
@@ -179,7 +180,7 @@ fun ManageBudgetsScreen(
                         ) {
                             Icon(
                                 Icons.Default.Delete,
-                                contentDescription = "Delete",
+                                contentDescription = stringResource(R.string.transactions_delete_desc),
                                 modifier = Modifier.scale(scale),
                                 tint = Color.White
                             )
@@ -216,20 +217,20 @@ fun CategoryDialog(category: Category?, onDismiss: () -> Unit, onConfirm: (Strin
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (category == null) "Nova Categoria" else "Editar Categoria") },
+        title = { Text(if (category == null) stringResource(R.string.manage_budgets_new_category) else stringResource(R.string.manage_budgets_edit_category)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
                     value = newCategoryName,
                     onValueChange = { if (it.length <= maxCategoryNameLength) newCategoryName = it },
-                    label = { Text("Nome da Categoria") },
+                    label = { Text(stringResource(R.string.manage_budgets_name_label)) },
                     singleLine = true,
                     supportingText = { Text("${newCategoryName.length} / $maxCategoryNameLength") },
                     enabled = category?.isDefault != true
                 )
 
                 // Color Picker
-                Text("Cor", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.manage_budgets_color_label), style = MaterialTheme.typography.titleSmall)
                 HsvColorPicker(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -242,7 +243,7 @@ fun CategoryDialog(category: Category?, onDismiss: () -> Unit, onConfirm: (Strin
 
 
                 // Icon Picker
-                Text("Ícone", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.manage_budgets_icon_label), style = MaterialTheme.typography.titleSmall)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(icons.entries.toList()) { (name, icon) ->
                         Box(
@@ -268,12 +269,12 @@ fun CategoryDialog(category: Category?, onDismiss: () -> Unit, onConfirm: (Strin
                 },
                 enabled = newCategoryName.isNotBlank()
             ) {
-                Text(if (category == null) "Criar" else "Salvar")
+                Text(if (category == null) stringResource(R.string.manage_budgets_create) else stringResource(R.string.manage_budgets_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.dialog_cancel))
             }
         }
     )
@@ -332,7 +333,7 @@ fun BudgetCategoryItem(
                 onBudgetChange(it.toDoubleOrNull())
             },
             modifier = Modifier.width(120.dp),
-            label = { Text("Meta") },
+            label = { Text(stringResource(R.string.manage_budgets_target)) },
             prefix = { Text("R$ ") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true

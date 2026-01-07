@@ -31,7 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.screens.settings.shareFile
 import com.flowfinance.app.ui.viewmodel.CategoryTrendsViewModel
 import com.flowfinance.app.util.formatCurrency
@@ -52,10 +54,10 @@ fun CategoryTrendsSheetScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Planilha de Tendências") },
+                title = { Text(stringResource(R.string.trends_sheet_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
@@ -67,14 +69,14 @@ fun CategoryTrendsSheetScreen(
                         onDismissRequest = { showMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Baixar CSV") },
+                            text = { Text(stringResource(R.string.sheet_download_csv)) },
                             onClick = {
                                 showMenu = false
                                 viewModel.exportSheetToCsv { path ->
                                     if (path != null) {
                                         shareFile(context, path)
                                     } else {
-                                        Toast.makeText(context, "Erro ao exportar", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.sheet_export_error), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
@@ -92,7 +94,7 @@ fun CategoryTrendsSheetScreen(
         ) {
             // Header Row
             Row(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)) {
-                TableCell(text = "Data", weight = 1f, isHeader = true)
+                TableCell(text = stringResource(R.string.sheet_col_date), weight = 1f, isHeader = true)
                 uiState.categories.forEach { category ->
                      TableCell(text = category.name, weight = 1f, isHeader = true)
                 }
@@ -103,7 +105,7 @@ fun CategoryTrendsSheetScreen(
                 itemsIndexed(uiState.monthlyData) { index, item ->
                     val bgColor = if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
                     Row(modifier = Modifier.background(bgColor)) {
-                        val dateStr = item.yearMonth.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale("pt", "BR")))
+                        val dateStr = item.yearMonth.format(DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()))
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                         
                         TableCell(text = dateStr, weight = 1f)

@@ -27,8 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,18 +42,29 @@ fun UserProfileScreen(
     val userData by viewModel.userData.collectAsState()
     var name by remember(userData.userName) { mutableStateOf(userData.userName) }
     var selectedCurrency by remember(userData.currency) { mutableStateOf(userData.currency) }
+    var selectedLanguage by remember(userData.language) { mutableStateOf(userData.language) }
     
     val maxNameLength = 50
     // Simple list of currencies for demo
     val currencies = listOf("BRL", "USD", "EUR")
+    
+    // Language options: Code -> Resource ID
+    val languages = listOf(
+        "" to R.string.lang_en, // Empty string for default or "en" if we enforced it. But let's use explicit codes if we want to force switch.
+        // Actually, let's map codes to names.
+        // If we want system default, we might use empty string, but usually per-app language requires specific locales.
+        "en" to R.string.lang_en,
+        "pt-BR" to R.string.lang_pt,
+        "es" to R.string.lang_es
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Perfil do Usuário") },
+                title = { Text(stringResource(R.string.user_profile_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
             )
@@ -71,7 +84,7 @@ fun UserProfileScreen(
                 // Name Input
                 Column {
                     Text(
-                        text = "Nome",
+                        text = stringResource(R.string.name_label),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -79,7 +92,7 @@ fun UserProfileScreen(
                         value = name,
                         onValueChange = { if (it.length <= maxNameLength) name = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Seu nome") },
+                        label = { Text(stringResource(R.string.name_placeholder)) },
                         singleLine = true,
                         supportingText = { Text("${name.length} / $maxNameLength") }
                     )
@@ -88,7 +101,7 @@ fun UserProfileScreen(
                 // Currency Selection
                 Column {
                     Text(
-                        text = "Moeda Padrão",
+                        text = stringResource(R.string.currency_label),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -112,17 +125,51 @@ fun UserProfileScreen(
                         }
                     }
                 }
+
+                // Language Selection
+                Column {
+                    Text(
+                        text = stringResource(R.string.language_label),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    languages.forEach { (code, nameRes) ->
+                        // Determine if selected.
+                        // If selectedLanguage is empty or "en", we might consider "en" as default.
+                        // Let's assume userData.language stores the code.
+                        val isSelected = if (selectedLanguage.isEmpty()) code == "en" else selectedLanguage == code
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selectedLanguage = code }
+                            )
+                            Text(
+                                text = stringResource(nameRes),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             Button(
                 onClick = {
                     viewModel.updateUserName(name)
                     viewModel.updateCurrency(selectedCurrency)
+                    viewModel.updateLanguage(selectedLanguage)
                     onBackClick()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Salvar Alterações")
+                Text(stringResource(R.string.save_changes))
             }
         }
     }

@@ -18,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.components.PieChart
 import com.flowfinance.app.ui.screens.planning.rememberCategoryIcon
@@ -65,7 +67,7 @@ fun DashboardScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Despesas por Categoria",
+                            text = stringResource(R.string.dashboard_expenses_by_category),
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.align(Alignment.Start)
                         )
@@ -106,12 +108,12 @@ fun DashboardScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Últimas Transações",
+                    text = stringResource(R.string.dashboard_recent_transactions),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
                 TextButton(onClick = onSeeAllClick) {
-                    Text("Ver todas")
+                    Text(stringResource(R.string.dashboard_see_all))
                 }
             }
         }
@@ -137,7 +139,7 @@ fun BalanceCard(
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(
-                text = "Saldo Total",
+                text = stringResource(R.string.dashboard_balance_total),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
             )
@@ -153,7 +155,7 @@ fun BalanceCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 FinanceIndicator(
-                    label = "Receitas",
+                    label = stringResource(R.string.dashboard_income),
                     amount = income,
                     icon = Icons.Default.ArrowUpward,
                     color = GreenIncome,
@@ -161,7 +163,7 @@ fun BalanceCard(
                     currencyCode = currencyCode
                 )
                 FinanceIndicator(
-                    label = "Despesas",
+                    label = stringResource(R.string.dashboard_expenses),
                     amount = expense,
                     icon = Icons.Default.ArrowDownward,
                     color = RedExpense,

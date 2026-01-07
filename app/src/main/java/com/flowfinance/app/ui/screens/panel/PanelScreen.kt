@@ -17,9 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.components.GeneralOverviewChart
 import com.flowfinance.app.ui.viewmodel.FinancialFlowViewModel
 import com.flowfinance.app.ui.viewmodel.FinancialSummaryViewModel
@@ -47,12 +49,12 @@ fun PanelScreen(
     ) {
         Column(modifier = Modifier.padding(bottom = 16.dp)) {
             Text(
-                text = "Painel Financeiro",
+                text = stringResource(R.string.panel_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Acesse ferramentas avançadas de análise.",
+                text = stringResource(R.string.panel_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -60,7 +62,7 @@ fun PanelScreen(
 
         // Gráfico de Visualização Geral
         if (!flowUiState.isLoading && flowUiState.monthlyData.isNotEmpty()) {
-            ChartCard(title = "Visualização Geral") {
+            ChartCard(title = stringResource(R.string.panel_chart_overview)) {
                 GeneralOverviewChart(
                     data = flowUiState.monthlyData,
                     currency = flowUiState.currency,
@@ -74,7 +76,7 @@ fun PanelScreen(
         // Resumo do Ano Atual
         if (!summaryUiState.isLoading) {
             SummaryTableCard(
-                title = "Total Anual (${summaryUiState.currentYear})",
+                title = stringResource(R.string.panel_annual_summary, summaryUiState.currentYear),
                 data = summaryUiState.yearlySummary,
                 currency = summaryUiState.currency
             )
@@ -87,28 +89,28 @@ fun PanelScreen(
             onClick = onNavigateToFinancialFlow,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Fluxo Financeiro")
+            Text(text = stringResource(R.string.panel_btn_financial_flow))
         }
 
         Button(
             onClick = onNavigateToPatternsAnalysis,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Tendência por Categoria")
+            Text(text = stringResource(R.string.panel_btn_category_trends))
         }
 
         Button(
             onClick = onNavigateToExpenseAnalysis,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Análise de Gastos")
+            Text(text = stringResource(R.string.panel_btn_expense_analysis))
         }
 
         Button(
             onClick = onNavigateToFinancialSummary,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Resumo Financeiro")
+            Text(text = stringResource(R.string.panel_btn_financial_summary))
         }
     }
 }

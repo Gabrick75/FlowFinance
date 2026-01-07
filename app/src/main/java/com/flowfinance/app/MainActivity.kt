@@ -4,10 +4,10 @@ import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -27,7 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -59,7 +59,7 @@ import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
             // Permission granted
         } else {
              // Permission denied, explain to user or disable notification feature
-             Toast.makeText(this, "Permissão de notificação negada. Os lembretes não funcionarão.", Toast.LENGTH_LONG).show()
+             // Toast.makeText(this, "Permissão de notificação negada. Os lembretes não funcionarão.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                                 )
                                 screens.forEach { screen ->
                                     NavigationBarItem(
-                                        icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                        icon = { Icon(screen.icon, contentDescription = stringResource(screen.titleRes)) },
                                         label = null,
                                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                                         onClick = {
@@ -144,7 +144,7 @@ class MainActivity : ComponentActivity() {
                                     containerColor = MaterialTheme.colorScheme.primary,
                                     contentColor = MaterialTheme.colorScheme.onPrimary
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = "Nova Transação")
+                                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.fab_new_transaction))
                                 }
                             }
                             Screen.Planning.route -> {
@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
                                     containerColor = MaterialTheme.colorScheme.secondary,
                                     contentColor = MaterialTheme.colorScheme.onSecondary
                                 ) {
-                                    Icon(Icons.Default.Edit, contentDescription = "Gerenciar Metas")
+                                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.fab_manage_budgets))
                                 }
                             }
                         }
