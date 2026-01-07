@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,9 +27,12 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -36,6 +42,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,13 +55,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.R
+import com.flowfinance.app.data.local.model.BackupMetadata
 import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun SettingsScreen(
@@ -69,6 +80,43 @@ fun SettingsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var deleteConfirmationText by remember { mutableStateOf("") }
     val CONFIRMATION_PHRASE = "tenho certeza"
+
+    // State for Backup Dialogs
+    var showExportBackupDialog by remember { mutableStateOf(false) }
+    var showImportBackupDialog by remember { mutableStateOf(false) }
+    var backupPassword by remember { mutableStateOf("") }
+    var backupPasswordConfirm by remember { mutableStateOf("") }
+    var importUri by remember { mutableStateOf<Uri?>(null) }
+    var importedMetadata by remember { mutableStateOf<BackupMetadata?>(null) }
+    var isCheckingFile by remember { mutableStateOf(false) }
+    var fileCheckError by remember { mutableStateOf<String?>(null) }
+    
+    // File Picker for Import
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            importUri = uri
+            showImportBackupDialog = true
+            backupPassword = "" 
+        }
+    }
+
+    LaunchedEffect(importUri) {
+        if (importUri != null && showImportBackupDialog) {
+            isCheckingFile = true
+            fileCheckError = null
+            importedMetadata = null
+            viewModel.getBackupMetadata(importUri!!) { metadata ->
+                isCheckingFile = false
+                if (metadata != null) {
+                    importedMetadata = metadata
+                } else {
+                    fileCheckError = "Arquivo inválido ou corrompido."
+                }
+            }
+        }
+    }
 
     if (showDeleteDialog) {
         AlertDialog(
@@ -116,6 +164,148 @@ fun SettingsScreen(
             }
         )
     }
+    
+    if (showExportBackupDialog) {
+        AlertDialog(
+            onDismissRequest = { 
+                showExportBackupDialog = false 
+                backupPassword = ""
+                backupPasswordConfirm = ""
+            },
+            title = { Text("Exportar Backup") },
+            text = {
+                Column {
+                    Text("Defina uma senha para criptografar seu backup.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = backupPassword,
+                        onValueChange = { backupPassword = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Senha") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = backupPasswordConfirm,
+                        onValueChange = { backupPasswordConfirm = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Confirmar Senha") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        singleLine = true,
+                        isError = backupPassword.isNotEmpty() && backupPasswordConfirm.isNotEmpty() && backupPassword != backupPasswordConfirm
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                         if (backupPassword == backupPasswordConfirm && backupPassword.isNotEmpty()) {
+                             viewModel.exportBackup(backupPassword) { filePath ->
+                                 showExportBackupDialog = false
+                                 backupPassword = ""
+                                 backupPasswordConfirm = ""
+                                 if (filePath != null) {
+                                     shareFile(context, filePath, isBackup = true)
+                                 } else {
+                                     Toast.makeText(context, "Erro ao gerar backup.", Toast.LENGTH_SHORT).show()
+                                 }
+                             }
+                         } else {
+                             Toast.makeText(context, "As senhas não coincidem ou estão vazias.", Toast.LENGTH_SHORT).show()
+                         }
+                    },
+                    enabled = backupPassword.isNotEmpty() && backupPassword == backupPasswordConfirm
+                ) {
+                    Text("Gerar Backup")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showExportBackupDialog = false
+                    backupPassword = ""
+                    backupPasswordConfirm = ""
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (showImportBackupDialog && importUri != null) {
+        AlertDialog(
+            onDismissRequest = { 
+                showImportBackupDialog = false 
+                backupPassword = ""
+                importedMetadata = null
+                fileCheckError = null
+            },
+            title = { Text("Importar Backup") },
+            text = {
+                Column {
+                     if (isCheckingFile) {
+                         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                             CircularProgressIndicator()
+                         }
+                     } else if (fileCheckError != null) {
+                         Text(fileCheckError!!, color = MaterialTheme.colorScheme.error)
+                     } else if (importedMetadata != null) {
+                         Text("Arquivo de backup encontrado.", fontWeight = FontWeight.Bold)
+                         Spacer(modifier = Modifier.height(8.dp))
+                         Text("Versão do App: ${importedMetadata?.appVersion}")
+                         
+                         val formattedDate = try {
+                             val date = LocalDateTime.parse(importedMetadata?.createdAt)
+                             date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                         } catch (e: Exception) {
+                             importedMetadata?.createdAt
+                         }
+                         
+                         Text("Data: $formattedDate")
+                         Spacer(modifier = Modifier.height(16.dp))
+                         Text("Digite a senha para restaurar os dados.")
+                         Spacer(modifier = Modifier.height(8.dp))
+                         OutlinedTextField(
+                            value = backupPassword,
+                            onValueChange = { backupPassword = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Senha do Backup") },
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Atenção: Todos os dados atuais serão substituídos.", color = MaterialTheme.colorScheme.error)
+                     }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.importBackup(importUri!!, backupPassword) { success, message ->
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            if (success) {
+                                showImportBackupDialog = false
+                                backupPassword = ""
+                                importedMetadata = null
+                            }
+                        }
+                    },
+                    enabled = importedMetadata != null && backupPassword.isNotEmpty()
+                ) {
+                    Text("Importar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showImportBackupDialog = false
+                    backupPassword = ""
+                    importedMetadata = null
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -157,7 +347,7 @@ fun SettingsScreen(
         SettingsSection(title = "Dados") {
             SettingsItem(
                 icon = Icons.Default.Download,
-                title = "Exportar Dados",
+                title = "Exportar Dados (Planilha)",
                 subtitle = "Salvar planilha completa (.xls)",
                 onClick = {
                     viewModel.exportDataToCsv { filePath ->
@@ -174,6 +364,23 @@ fun SettingsScreen(
                 title = "Limpar Dados",
                 subtitle = "Apagar todas as transações",
                 onClick = { showDeleteDialog = true }
+            )
+        }
+
+        SettingsSection(title = "Backup") {
+            SettingsItem(
+                icon = Icons.Default.Save,
+                title = "Exportar Backup",
+                subtitle = "Salvar cópia criptografada de todos os dados",
+                onClick = { showExportBackupDialog = true }
+            )
+            SettingsItem(
+                icon = Icons.Default.Upload,
+                title = "Importar Backup",
+                subtitle = "Restaurar dados de um arquivo de backup",
+                onClick = { 
+                    filePickerLauncher.launch(arrayOf("*/*")) 
+                }
             )
         }
 
@@ -246,7 +453,7 @@ fun SettingsScreen(
     }
 }
 
-fun shareFile(context: Context, filePath: String) {
+fun shareFile(context: Context, filePath: String, isBackup: Boolean = false) {
     val file = File(filePath)
     val uri = FileProvider.getUriForFile(
         context,
@@ -254,7 +461,11 @@ fun shareFile(context: Context, filePath: String) {
         file
     )
     
-    val mimeType = if (filePath.endsWith(".xls")) "application/vnd.ms-excel" else "text/csv"
+    val mimeType = when {
+        filePath.endsWith(".xls") -> "application/vnd.ms-excel"
+        filePath.endsWith(".flowbackup") -> "application/octet-stream"
+        else -> "text/csv"
+    }
     
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = mimeType
@@ -262,7 +473,8 @@ fun shareFile(context: Context, filePath: String) {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     
-    context.startActivity(Intent.createChooser(intent, "Compartilhar Exportação"))
+    val title = if (isBackup) "Salvar Backup" else "Compartilhar Exportação"
+    context.startActivity(Intent.createChooser(intent, title))
 }
 
 @Composable

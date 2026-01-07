@@ -1,14 +1,21 @@
 package com.flowfinance.app.ui.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flowfinance.app.BuildConfig
+import com.flowfinance.app.data.local.model.BackupPayload
+import com.flowfinance.app.data.local.model.BackupFile
+import com.flowfinance.app.data.local.model.BackupMetadata
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.data.preferences.UserData
 import com.flowfinance.app.data.preferences.UserPreferencesRepository
 import com.flowfinance.app.data.repository.CategoryRepository
 import com.flowfinance.app.data.repository.TransactionRepository
+import com.flowfinance.app.util.CryptoUtils
 import com.flowfinance.app.util.TransactionType
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +26,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -324,5 +332,133 @@ class SettingsViewModel @Inject constructor(
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "&apos;")
+    }
+
+    fun exportBackup(password: String, onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // 1. Gather all data
+                val transactions = transactionRepository.getAllTransactions().first()
+                val categories = categoryRepository.getAllCategories().first()
+                val userPrefs = userData.first()
+                
+                val payload = BackupPayload(
+                    transactions = transactions,
+                    categories = categories,
+                    userData = userPrefs
+                )
+                
+                // 2. Encrypt Payload
+                val gson = Gson()
+                val payloadJson = gson.toJson(payload)
+                val encryptedPayload = CryptoUtils.encrypt(payloadJson, password)
+                
+                // 3. Create Backup File Structure
+                val metadata = BackupMetadata(
+                    appVersion = BuildConfig.VERSION_NAME,
+                    dbVersion = 3,
+                    createdAt = LocalDateTime.now().toString()
+                )
+                
+                val backupFile = BackupFile(
+                    metadata = metadata,
+                    encryptedData = encryptedPayload
+                )
+
+                // 4. Save to file
+                val backupFileJson = gson.toJson(backupFile)
+                val fileName = "flowfinance_backup_${System.currentTimeMillis()}.flowbackup"
+                val file = File(context.getExternalFilesDir(null), fileName)
+                file.writeText(backupFileJson)
+
+                onResult(file.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(null)
+            }
+        }
+    }
+
+    fun importBackup(uri: Uri, password: String, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // 1. Read file
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val fileContent = inputStream?.bufferedReader()?.use { it.readText() }
+                
+                if (fileContent == null) {
+                    onResult(false, "Falha ao ler o arquivo.")
+                    return@launch
+                }
+                
+                // 2. Parse Backup File Structure (Metadata + Encrypted Data)
+                val gson = Gson()
+                val backupFile = try {
+                     gson.fromJson(fileContent, BackupFile::class.java)
+                } catch (e: Exception) {
+                    onResult(false, "Formato de arquivo inválido.")
+                    return@launch
+                }
+
+                // 3. Decrypt Payload
+                val jsonPayloadString = try {
+                    CryptoUtils.decrypt(backupFile.encryptedData, password)
+                } catch (e: Exception) {
+                    onResult(false, "Senha incorreta.")
+                    return@launch
+                }
+
+                // 4. Deserialize Payload
+                val backupPayload = gson.fromJson(jsonPayloadString, BackupPayload::class.java)
+
+                // 5. Restore Data
+                // Clear existing
+                transactionRepository.deleteAllTransactions()
+                categoryRepository.deleteAllCategories() // Now deletes ALL categories, including defaults
+                
+                // Restore Categories
+                backupPayload.categories.forEach { category ->
+                    categoryRepository.insertCategory(category)
+                }
+
+                // Restore Transactions
+                backupPayload.transactions.forEach { transaction ->
+                     transactionRepository.insertTransaction(transaction)
+                }
+                
+                // Restore User Preferences
+                backupPayload.userData?.let {
+                    userPreferencesRepository.setUserName(it.userName)
+                    userPreferencesRepository.setCurrency(it.currency)
+                    userPreferencesRepository.setDarkTheme(it.isDarkTheme)
+                }
+                
+                onResult(true, "Backup importado com sucesso!")
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(false, "Erro ao importar backup: ${e.message}")
+            }
+        }
+    }
+    
+    fun getBackupMetadata(uri: Uri, onResult: (BackupMetadata?) -> Unit) {
+         viewModelScope.launch {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val fileContent = inputStream?.bufferedReader()?.use { it.readText() }
+
+                if (fileContent == null) {
+                    onResult(null)
+                    return@launch
+                }
+                
+                val gson = Gson()
+                val backupFile = gson.fromJson(fileContent, BackupFile::class.java)
+                onResult(backupFile.metadata)
+            } catch (e: Exception) {
+                onResult(null)
+            }
+         }
     }
 }

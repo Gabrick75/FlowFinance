@@ -84,6 +84,9 @@ dependencies {
     // Color Picker
     implementation("com.github.skydoves:colorpicker-compose:1.0.0")
 
+    // Gson
+    implementation(libs.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
