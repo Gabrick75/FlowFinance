@@ -1,5 +1,6 @@
 package com.flowfinance.app.ui.screens.settings
 
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -7,14 +8,17 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +30,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Upload
@@ -35,6 +40,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -66,6 +72,7 @@ import com.flowfinance.app.ui.viewmodel.SettingsViewModel
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun SettingsScreen(
@@ -90,6 +97,12 @@ fun SettingsScreen(
     var importedMetadata by remember { mutableStateOf<BackupMetadata?>(null) }
     var isCheckingFile by remember { mutableStateOf(false) }
     var fileCheckError by remember { mutableStateOf<String?>(null) }
+
+    // State for Notification Dialog
+    var showNotificationDialog by remember { mutableStateOf(false) }
+    var tempHour by remember { mutableStateOf(userData.reminderHour) }
+    var tempMinute by remember { mutableStateOf(userData.reminderMinute) }
+    var tempInterval by remember { mutableStateOf(userData.reminderIntervalDays) }
     
     // File Picker for Import
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -116,6 +129,92 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+    
+    // Update temp states when userData loads
+    LaunchedEffect(userData) {
+        if (!showNotificationDialog) {
+            tempHour = userData.reminderHour
+            tempMinute = userData.reminderMinute
+            tempInterval = userData.reminderIntervalDays
+        }
+    }
+
+    if (showNotificationDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationDialog = false },
+            title = { Text("Configurar Notificações") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Defina o horário e a frequência do lembrete para registrar suas despesas.")
+
+                    // Time Picker Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Horário do Lembrete:")
+                        TextButton(onClick = {
+                            TimePickerDialog(context, { _, hour, minute ->
+                                tempHour = hour
+                                tempMinute = minute
+                            }, tempHour, tempMinute, true).show()
+                        }) {
+                            Text(String.format(Locale.getDefault(), "%02d:%02d", tempHour, tempMinute), style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+
+                    // Interval Picker Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Intervalo (dias):")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(onClick = { if (tempInterval > 1) tempInterval-- }) {
+                                Text("-", style = MaterialTheme.typography.titleLarge)
+                            }
+                            Text("$tempInterval", modifier = Modifier.padding(horizontal = 8.dp))
+                            IconButton(onClick = { if (tempInterval < 30) tempInterval++ }) {
+                                Text("+", style = MaterialTheme.typography.titleLarge)
+                            }
+                        }
+                    }
+
+                    HorizontalDivider()
+
+                    Button(
+                        onClick = { viewModel.sendTestNotification() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Text("Testar Notificação Agora")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    viewModel.updateReminderSettings(tempHour, tempMinute, tempInterval, true)
+                    showNotificationDialog = false
+                    Toast.makeText(context, "Lembrete configurado!", Toast.LENGTH_SHORT).show()
+                }) {
+                    Text("Salvar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showNotificationDialog = false 
+                    // Reset to stored values
+                    tempHour = userData.reminderHour
+                    tempMinute = userData.reminderMinute
+                    tempInterval = userData.reminderIntervalDays
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     if (showDeleteDialog) {
@@ -341,6 +440,18 @@ fun SettingsScreen(
                         onCheckedChange = { viewModel.updateTheme(it) }
                     )
                 }
+            )
+            
+            // New Notification Button
+            ListItem(
+                leadingContent = {
+                    Icon(Icons.Default.Notifications, contentDescription = null)
+                },
+                headlineContent = { Text("Configurar Notificações") },
+                trailingContent = {
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                },
+                modifier = Modifier.clickable { showNotificationDialog = true }
             )
         }
 

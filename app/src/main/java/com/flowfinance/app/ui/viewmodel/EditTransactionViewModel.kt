@@ -22,7 +22,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class AddTransactionViewModel @Inject constructor(
+class EditTransactionViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
     @ApplicationContext private val context: Context
@@ -41,23 +41,24 @@ class AddTransactionViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-
-    fun saveTransaction(
+    fun updateTransaction(
+        transactionId: Int,
         description: String,
         amount: Double,
         type: TransactionType,
         categoryId: Int,
-        date: LocalDate = LocalDate.now()
+        date: LocalDate
     ) {
         viewModelScope.launch {
             val transaction = Transaction(
+                id = transactionId,
                 description = description,
                 amount = amount,
                 type = type,
                 categoryId = categoryId,
                 date = date
             )
-            transactionRepository.insertTransaction(transaction)
+            transactionRepository.updateTransaction(transaction)
 
             // Trigger budget check for expenses
             if (type == TransactionType.EXPENSE) {
@@ -70,6 +71,14 @@ class AddTransactionViewModel @Inject constructor(
                     .build()
                 WorkManager.getInstance(context).enqueue(budgetCheckRequest)
             }
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            transactionRepository.deleteTransaction(transaction)
+            
+            // Should we trigger check on delete? Probably not critical, but budget frees up.
         }
     }
 }

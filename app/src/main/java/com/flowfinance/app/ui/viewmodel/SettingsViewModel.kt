@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.flowfinance.app.BuildConfig
 import com.flowfinance.app.data.local.model.BackupPayload
 import com.flowfinance.app.data.local.model.BackupFile
@@ -15,6 +19,7 @@ import com.flowfinance.app.data.repository.CategoryRepository
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.util.CryptoUtils
 import com.flowfinance.app.util.TransactionType
+import com.flowfinance.app.workers.NotificationWorker
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,7 +34,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,6 +70,74 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             userPreferencesRepository.setCurrency(currency)
         }
+    }
+    
+    fun updateReminderSettings(hour: Int, minute: Int, intervalDays: Int, isEnabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setReminderSettings(hour, minute, intervalDays, isEnabled)
+            
+            if (isEnabled) {
+                scheduleReminder(hour, minute, intervalDays)
+            } else {
+                WorkManager.getInstance(context).cancelUniqueWork("WeeklyReminder")
+            }
+        }
+    }
+    
+    private fun scheduleReminder(hour: Int, minute: Int, intervalDays: Int) {
+        val now = Calendar.getInstance()
+        val nextTrigger = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+        }
+
+        if (nextTrigger.before(now)) {
+            nextTrigger.add(Calendar.DAY_OF_YEAR, 1) // If time passed, try tomorrow first? 
+            // Or strictly follow interval from now?
+            // User requested "weekly reminder", now changing to custom interval.
+            // Let's assume we want to trigger at next valid time.
+            // For simple implementation, if time passed today, we add 1 day to check if it matches interval logic or just start from tomorrow.
+            // But periodic work runs every X days. 
+            // We set initial delay to reach the target time.
+            
+            // To be consistent with "every X days starting at HH:MM":
+            // We just ensure nextTrigger is in future.
+        }
+        
+        // Wait, PeriodicWorkRequest interval is fixed time. 
+        // If we want "Every Sunday", we need 7 days interval.
+        // If user selects custom interval (e.g. 3 days), it runs every 3 days.
+        
+        val initialDelay = nextTrigger.timeInMillis - now.timeInMillis
+        // Ensure positive delay
+        val delay = if (initialDelay < 0) initialDelay + TimeUnit.DAYS.toMillis(1) else initialDelay
+
+        val reminderRequest = PeriodicWorkRequestBuilder<NotificationWorker>(intervalDays.toLong(), TimeUnit.DAYS)
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(
+                androidx.work.Data.Builder()
+                    .putString(NotificationWorker.KEY_NOTIFICATION_TYPE, NotificationWorker.TYPE_WEEKLY_REMINDER)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "WeeklyReminder",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            reminderRequest
+        )
+    }
+
+    fun sendTestNotification() {
+        val testRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInputData(
+                androidx.work.Data.Builder()
+                    .putString(NotificationWorker.KEY_NOTIFICATION_TYPE, NotificationWorker.TYPE_TEST)
+                    .build()
+            )
+            .build()
+        WorkManager.getInstance(context).enqueue(testRequest)
     }
 
     fun clearAllData() {
@@ -431,6 +506,12 @@ class SettingsViewModel @Inject constructor(
                     userPreferencesRepository.setUserName(it.userName)
                     userPreferencesRepository.setCurrency(it.currency)
                     userPreferencesRepository.setDarkTheme(it.isDarkTheme)
+                    userPreferencesRepository.setReminderSettings(
+                        it.reminderHour,
+                        it.reminderMinute,
+                        it.reminderIntervalDays,
+                        it.isReminderEnabled
+                    )
                 }
                 
                 onResult(true, "Backup importado com sucesso!")
