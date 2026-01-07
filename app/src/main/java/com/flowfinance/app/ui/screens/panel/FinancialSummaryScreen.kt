@@ -58,7 +58,7 @@ fun FinancialSummaryScreen(
                 title = {
                     Text(
                         "Resumo Financeiro",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -85,9 +85,14 @@ fun FinancialSummaryScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .padding(16.dp),
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
                     item {
                         SummaryTableCard(
                             title = "Total Atual (Desde o Início)",

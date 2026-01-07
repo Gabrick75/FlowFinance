@@ -41,8 +41,8 @@ fun PanelScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
-            .verticalScroll(scrollState),
+            .verticalScroll(scrollState)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Column(modifier = Modifier.padding(bottom = 16.dp)) {
@@ -110,7 +110,5 @@ fun PanelScreen(
         ) {
             Text(text = "Resumo Financeiro")
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }

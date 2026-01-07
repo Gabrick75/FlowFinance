@@ -68,7 +68,7 @@ fun CategoryTrendsScreen(
                 title = { 
                     Text(
                         "Tendência por Categoria",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     ) 
                 },
@@ -104,10 +104,15 @@ fun CategoryTrendsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 
+                // Espaço inicial para ajustar o padding top
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 // 1. Gráficos de Pizza (Carousel)
                 item {
                     Text(

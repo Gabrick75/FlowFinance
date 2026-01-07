@@ -50,11 +50,7 @@ fun MonthlyHistoryScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "Histórico Mensal (${uiState.year})",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("Histórico Mensal (${uiState.year})")
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
