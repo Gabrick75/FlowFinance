@@ -157,8 +157,8 @@ fun SettingsScreen(
         SettingsSection(title = "Dados") {
             SettingsItem(
                 icon = Icons.Default.Download,
-                title = "Exportar Dados (CSV)",
-                subtitle = "Salvar planilha de transações",
+                title = "Exportar Dados",
+                subtitle = "Salvar planilha completa (.xls)",
                 onClick = {
                     viewModel.exportDataToCsv { filePath ->
                         if (filePath != null) {
@@ -254,8 +254,10 @@ fun shareFile(context: Context, filePath: String) {
         file
     )
     
+    val mimeType = if (filePath.endsWith(".xls")) "application/vnd.ms-excel" else "text/csv"
+    
     val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/csv"
+        type = mimeType
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }

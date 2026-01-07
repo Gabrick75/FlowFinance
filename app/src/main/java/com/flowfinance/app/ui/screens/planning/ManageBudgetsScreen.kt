@@ -224,7 +224,8 @@ fun CategoryDialog(category: Category?, onDismiss: () -> Unit, onConfirm: (Strin
                     onValueChange = { if (it.length <= maxCategoryNameLength) newCategoryName = it },
                     label = { Text("Nome da Categoria") },
                     singleLine = true,
-                    supportingText = { Text("${newCategoryName.length} / $maxCategoryNameLength") }
+                    supportingText = { Text("${newCategoryName.length} / $maxCategoryNameLength") },
+                    enabled = category?.isDefault != true
                 )
 
                 // Color Picker
