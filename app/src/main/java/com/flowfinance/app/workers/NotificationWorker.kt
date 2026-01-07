@@ -1,12 +1,16 @@
 package com.flowfinance.app.workers
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -117,7 +121,18 @@ class NotificationWorker @AssistedInject constructor(
     }
 
     private fun showNotification(title: String, message: String, notificationId: Int) {
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Cannot post notification without permission
+                return
+            }
+        }
+
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -125,7 +140,8 @@ class NotificationWorker @AssistedInject constructor(
                 "Lembretes e Alertas",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            notificationManager.createNotificationChannel(channel)
+            val systemNotificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            systemNotificationManager.createNotificationChannel(channel)
         }
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
@@ -140,7 +156,7 @@ class NotificationWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Use a valid icon resource
+            .setSmallIcon(R.mipmap.ic_launcher_round) // Changed to use mipmap which exists
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
