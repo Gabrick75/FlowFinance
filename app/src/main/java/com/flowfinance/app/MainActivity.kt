@@ -42,6 +42,7 @@ import com.flowfinance.app.ui.screens.panel.ExpenseAnalysisScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
 import com.flowfinance.app.ui.screens.panel.FinancialSummaryScreen
 import com.flowfinance.app.ui.screens.panel.FullScreenChartScreen
+import com.flowfinance.app.ui.screens.panel.MonthlyHistoryScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
 import com.flowfinance.app.ui.screens.panel.SheetScreen
 import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
@@ -211,11 +212,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(Screen.MonthlyHistory.route) {
-                                // Placeholder for now, or redirect back if not implemented
-                                Box(modifier = Modifier.padding(16.dp)) {
-                                    androidx.compose.material3.Text("Histórico mensal em desenvolvimento")
-                                }
-                                // To make it functional later, implement MonthlyHistoryScreen
+                                MonthlyHistoryScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(
                                 route = Screen.ChartDetail.route,
