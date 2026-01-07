@@ -3,6 +3,7 @@ package com.flowfinance.app.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PieChart
@@ -26,6 +27,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Sheet : Screen("sheet", "Planilha", Icons.Default.TableChart)
     object CategoryTrends : Screen("category_trends", "Tendência por Categoria", Icons.Default.Timeline)
     object CategoryTrendsSheet : Screen("category_trends_sheet", "Planilha de Tendências", Icons.Default.TableChart)
+    object ExpenseAnalysis : Screen("expense_analysis", "Análise de Gastos", Icons.Default.BarChart)
     
     // Rota com argumento: "chart_detail/{chartType}"
     object ChartDetail : Screen("chart_detail/{chartType}", "Detalhe do Gráfico", Icons.Default.ShowChart) {

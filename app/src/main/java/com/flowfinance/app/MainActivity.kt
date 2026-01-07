@@ -37,6 +37,7 @@ import com.flowfinance.app.ui.navigation.Screen
 import com.flowfinance.app.ui.screens.dashboard.DashboardScreen
 import com.flowfinance.app.ui.screens.panel.CategoryTrendsScreen
 import com.flowfinance.app.ui.screens.panel.CategoryTrendsSheetScreen
+import com.flowfinance.app.ui.screens.panel.ExpenseAnalysisScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
 import com.flowfinance.app.ui.screens.panel.FullScreenChartScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
                             currentRoute != Screen.Sheet.route &&
                             currentRoute != Screen.CategoryTrends.route &&
                             currentRoute != Screen.CategoryTrendsSheet.route &&
+                            currentRoute != Screen.ExpenseAnalysis.route &&
                             currentRoute?.startsWith("chart_detail") != true) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
@@ -155,7 +157,8 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.Panel.route) {
                                 PanelScreen(
                                     onNavigateToFinancialFlow = { navController.navigate(Screen.FinancialFlow.route) },
-                                    onNavigateToPatternsAnalysis = { navController.navigate(Screen.CategoryTrends.route) }
+                                    onNavigateToPatternsAnalysis = { navController.navigate(Screen.CategoryTrends.route) },
+                                    onNavigateToExpenseAnalysis = { navController.navigate(Screen.ExpenseAnalysis.route) }
                                 )
                             }
                             composable(Screen.Settings.route) {
@@ -192,6 +195,9 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.CategoryTrendsSheet.route) {
                                 CategoryTrendsSheetScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(Screen.ExpenseAnalysis.route) {
+                                ExpenseAnalysisScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(
                                 route = Screen.ChartDetail.route,

@@ -17,7 +17,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PanelScreen(
     onNavigateToFinancialFlow: () -> Unit,
-    onNavigateToPatternsAnalysis: () -> Unit
+    onNavigateToPatternsAnalysis: () -> Unit,
+    onNavigateToExpenseAnalysis: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -54,7 +55,7 @@ fun PanelScreen(
         }
 
         Button(
-            onClick = onNavigateToPatternsAnalysis,
+            onClick = onNavigateToExpenseAnalysis,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Análise de Gastos")
@@ -66,7 +67,6 @@ fun PanelScreen(
         ) {
             Text(text = "Resumo Financeiro")
         }
-        
         // Espaço para futuras funcionalidades do painel
     }
 }
