@@ -28,6 +28,8 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object CategoryTrends : Screen("category_trends", "Tendência por Categoria", Icons.Default.Timeline)
     object CategoryTrendsSheet : Screen("category_trends_sheet", "Planilha de Tendências", Icons.Default.TableChart)
     object ExpenseAnalysis : Screen("expense_analysis", "Análise de Gastos", Icons.Default.BarChart)
+    object FinancialSummary : Screen("financial_summary", "Resumo Financeiro", Icons.Default.TableChart)
+    object MonthlyHistory : Screen("monthly_history", "Histórico Mensal", Icons.AutoMirrored.Filled.List)
     
     // Rota com argumento: "chart_detail/{chartType}"
     object ChartDetail : Screen("chart_detail/{chartType}", "Detalhe do Gráfico", Icons.Default.ShowChart) {

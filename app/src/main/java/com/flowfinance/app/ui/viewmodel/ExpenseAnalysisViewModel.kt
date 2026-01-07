@@ -93,7 +93,6 @@ class ExpenseAnalysisViewModel @Inject constructor(
                 .mapValues { entry -> entry.value.sumOf { it.amount } }
             
             // Média por dia da semana (para não enviesar se houver mais segundas-feiras no período)
-            // Mas para heatmap simples, soma total ou média simples serve. Vamos usar média por ocorrência desse dia.
             val countDayOfWeek = transactions.map { it.date }.distinct().groupBy { it.dayOfWeek }.mapValues { it.value.size }
             val avgExpensesByDayOfWeek = expensesByDayOfWeek.mapValues { (day, total) -> 
                 total / (countDayOfWeek[day] ?: 1) 

@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 fun PanelScreen(
     onNavigateToFinancialFlow: () -> Unit,
     onNavigateToPatternsAnalysis: () -> Unit,
-    onNavigateToExpenseAnalysis: () -> Unit
+    onNavigateToExpenseAnalysis: () -> Unit,
+    onNavigateToFinancialSummary: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -62,11 +63,12 @@ fun PanelScreen(
         }
 
         Button(
-            onClick = onNavigateToPatternsAnalysis,
+            onClick = onNavigateToFinancialSummary,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Resumo Financeiro")
         }
+        
         // Espaço para futuras funcionalidades do painel
     }
 }

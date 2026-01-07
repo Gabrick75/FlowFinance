@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -39,6 +40,7 @@ import com.flowfinance.app.ui.screens.panel.CategoryTrendsScreen
 import com.flowfinance.app.ui.screens.panel.CategoryTrendsSheetScreen
 import com.flowfinance.app.ui.screens.panel.ExpenseAnalysisScreen
 import com.flowfinance.app.ui.screens.panel.FinancialFlowScreen
+import com.flowfinance.app.ui.screens.panel.FinancialSummaryScreen
 import com.flowfinance.app.ui.screens.panel.FullScreenChartScreen
 import com.flowfinance.app.ui.screens.panel.PanelScreen
 import com.flowfinance.app.ui.screens.panel.SheetScreen
@@ -80,6 +82,8 @@ class MainActivity : ComponentActivity() {
                             currentRoute != Screen.CategoryTrends.route &&
                             currentRoute != Screen.CategoryTrendsSheet.route &&
                             currentRoute != Screen.ExpenseAnalysis.route &&
+                            currentRoute != Screen.FinancialSummary.route &&
+                            currentRoute != Screen.MonthlyHistory.route &&
                             currentRoute?.startsWith("chart_detail") != true) {
                             NavigationBar {
                                 val currentDestination = navBackStackEntry?.destination
@@ -158,7 +162,8 @@ class MainActivity : ComponentActivity() {
                                 PanelScreen(
                                     onNavigateToFinancialFlow = { navController.navigate(Screen.FinancialFlow.route) },
                                     onNavigateToPatternsAnalysis = { navController.navigate(Screen.CategoryTrends.route) },
-                                    onNavigateToExpenseAnalysis = { navController.navigate(Screen.ExpenseAnalysis.route) }
+                                    onNavigateToExpenseAnalysis = { navController.navigate(Screen.ExpenseAnalysis.route) },
+                                    onNavigateToFinancialSummary = { navController.navigate(Screen.FinancialSummary.route) }
                                 )
                             }
                             composable(Screen.Settings.route) {
@@ -198,6 +203,19 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.ExpenseAnalysis.route) {
                                 ExpenseAnalysisScreen(onBackClick = { navController.popBackStack() })
+                            }
+                            composable(Screen.FinancialSummary.route) {
+                                FinancialSummaryScreen(
+                                    onBackClick = { navController.popBackStack() },
+                                    onHistoryClick = { navController.navigate(Screen.MonthlyHistory.route) }
+                                )
+                            }
+                            composable(Screen.MonthlyHistory.route) {
+                                // Placeholder for now, or redirect back if not implemented
+                                Box(modifier = Modifier.padding(16.dp)) {
+                                    androidx.compose.material3.Text("Histórico mensal em desenvolvimento")
+                                }
+                                // To make it functional later, implement MonthlyHistoryScreen
                             }
                             composable(
                                 route = Screen.ChartDetail.route,
