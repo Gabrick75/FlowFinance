@@ -52,6 +52,20 @@ fun PanelScreen(
         ) {
             Text(text = "Tendência por Categoria")
         }
+
+        Button(
+            onClick = onNavigateToPatternsAnalysis,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Análise de Gastos")
+        }
+
+        Button(
+            onClick = onNavigateToPatternsAnalysis,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Resumo Financeiro")
+        }
         
         // Espaço para futuras funcionalidades do painel
     }
