@@ -1,11 +1,18 @@
 # FlowFinance
 
-FlowFinance é um aplicativo moderno de gestão financeira pessoal para Android, desenvolvido para oferecer uma experiência de controle orçamentário intuitiva e poderosa. Ele utiliza as bibliotecas Jetpack mais recentes e práticas modernas de desenvolvimento Android, incluindo uma base de código 100% em Kotlin e Jetpack Compose.
+FlowFinance é um aplicativo moderno e poderoso de gestão financeira pessoal para Android.  
+Mais do que um simples controle de despesas, ele oferece **análises financeiras avançadas**, ajudando o usuário a compreender profundamente seus ganhos, gastos e a evolução da sua vida financeira ao longo do tempo.
+
+O aplicativo é desenvolvido seguindo as **práticas modernas de desenvolvimento Android**, com uma base de código **100% em Kotlin** e uma interface totalmente declarativa construída com **Jetpack Compose**.
+
+---
 
 ### Captura de Tela Principal
 <p align="center">
   <img src="docs/images/main_screenshot.jpg" alt="App Screenshot" width="300"/>
 </p>
+
+---
 
 ### Mais Capturas de Tela
 <table>
@@ -19,60 +26,105 @@ FlowFinance é um aplicativo moderno de gestão financeira pessoal para Android,
   </tr>
 </table>
 
-
+---
 
 ## Sobre o Projeto
 
-Este aplicativo foi projetado para oferecer um monitoramento detalhado de receitas e despesas, permitindo que o usuário registre cada movimentação financeira com atribuição de valores e categorias específicas. Através de um sistema de persistência de dados robusto, o app organiza todas as informações cronologicamente e gera resumos estatísticos automáticos, ajudando o usuário a compreender seu comportamento de consumo ao longo do mês.
+O FlowFinance foi criado para oferecer **controle total e visibilidade completa** sobre as finanças pessoais.  
+Ele permite o registro detalhado de receitas e despesas, categorização inteligente de transações e geração automática de insights financeiros relevantes.
 
-A operação do sistema baseia-se na reatividade entre o banco de dados e a interface do usuário. Isso significa que qualquer alteração nos registros financeiros é refletida instantaneamente nos gráficos de distribuição e nos totais acumulados, sem a necessidade de intervenção manual para atualização da tela.
+Com a chegada do **FlowFinance v2.0.0**, o aplicativo evolui para uma **plataforma completa de análise financeira**, incorporando painéis avançados, métricas de gastos, análises por categoria e resumos históricos detalhados.
+
+Toda a operação do sistema é baseada em uma **arquitetura totalmente reativa**, onde qualquer alteração nos dados financeiros é refletida instantaneamente na interface, gráficos e totais — sem necessidade de atualizações manuais.
+
+---
 
 ## Primeiros Passos: Um Rápido Tutorial
 
-1.  **Adicione sua Primeira Transação**: Toque no botão `+` na tela Inicial ou no Histórico.
-2.  **Preencha os Detalhes**: Insira o valor, uma descrição, escolha uma categoria e selecione a data da transação.
-3.  **Explore Suas Finanças**: Veja seu saldo ser atualizado instantaneamente no Dashboard e consulte seu histórico completo de gastos na aba "Histórico".
-4.  **Personalize sua Experiência**: Vá para a aba "Configurações" para alterar seu nome de usuário, moeda preferida e ativar o modo escuro.
+1. **Adicione sua Primeira Transação**  
+   Toque no botão `+` na tela Inicial ou no Histórico.
+
+2. **Preencha os Detalhes**  
+   Informe o valor, a descrição, a categoria e a data da transação.
+
+3. **Explore Suas Finanças**  
+   Veja seu saldo, gráficos e análises serem atualizados instantaneamente no Dashboard.
+
+4. **Personalize sua Experiência**  
+   Acesse a aba **Configurações** para definir idioma, moeda, tema e opções de backup.
+
+---
 
 ## Principais Funcionalidades
 
--   **Dashboard Reativo**: Visualize instantaneamente seu saldo total, receitas e despesas do mês.
--   **Gráfico de Despesas**: Um `PieChart` customizado no dashboard exibe a distribuição de gastos por categoria.
--   **UI em Tempo Real**: A interface é totalmente reativa e se atualiza automaticamente com qualquer mudança no banco de dados, graças ao Kotlin Flow.
--   **Histórico de Transações**: Navegue por seu histórico completo de transações, agrupado por data com cabeçalhos fixos (`sticky headers`) para facilitar a navegação.
--   **Filtros Mensais**: Alterne facilmente entre diferentes meses para visualizar seu histórico financeiro.
--   **Deslizar para Excluir**: Apague transações de forma fluida ao deslizá-las para o lado na lista de histórico.
--   **Planejamento de Orçamentos**: Defina e acompanhe metas de gastos por categoria com barras de progresso que mudam de cor conforme o limite se aproxima.
--   **Gerenciamento Seguro de Dados**: Uma opção de "Limpar Dados" com um diálogo de confirmação para evitar perdas acidentais.
--   **Exportação de Dados**: Exporte todos os seus dados de transações para um arquivo CSV para compartilhar ou analisar em outro lugar.
--   **Personalização do Usuário**:
-    -   Defina seu nome de usuário.
-    -   Escolha sua moeda preferida (BRL, USD, EUR), que atualiza a formatação em todo o aplicativo.
-    -   Alterne entre um tema Escuro e Claro, com a preferência salva.
--   **Backups Automáticos**: Um worker em segundo plano (WorkManager) realiza automaticamente um backup semanal do banco de dados.
+- **Painel Financeiro Avançado**
+    - Evolução do patrimônio, receitas e despesas.
+    - Comparativo entre salário e rendimentos.
+    - Resumos financeiros mensais e históricos.
+
+- **Análise de Gastos**
+    - Médias de gasto diário, semanal e mensal.
+    - Identificação de picos de gastos por dia da semana e do mês.
+    - Heatmap semanal para visualização de intensidade.
+    - Separação entre gastos recorrentes e ocasionais.
+
+- **Insights por Categoria**
+    - Gráfico de pizza com distribuição de gastos.
+    - Ranking de categorias com maior consumo.
+    - Evolução mensal por categoria.
+    - Gráfico de área empilhada para composição de despesas.
+
+- **Histórico de Transações**
+    - Lista cronológica completa.
+    - Cabeçalhos fixos (`sticky headers`) por data.
+    - Exclusão rápida com gesto de deslizar.
+
+- **Exportação e Backup**
+    - Exportação de todos os dados para arquivos `.XLS`.
+    - Importação e exportação de backups criptografados.
+    - Backups automáticos semanais via WorkManager.
+
+- **Internacionalização (i18n)**
+    - Suporte a **Português (Brasil)**, **Inglês** e **Espanhol**.
+    - Seleção manual ou automática baseada no idioma do sistema.
+
+- **Personalização do Usuário**
+    - Definição de nome de usuário.
+    - Escolha de moeda (BRL, USD, EUR) com atualização imediata.
+    - Suporte a temas Claro e Escuro.
+
+- **Gerenciamento Seguro de Dados**
+    - Opção de limpar dados com confirmação para evitar exclusões acidentais.
+
+---
 
 ## Stack Técnica e Arquitetura
 
-Este projeto demonstra domínio das técnicas modernas de desenvolvimento Android e segue uma arquitetura limpa e escalável.
+Este projeto demonstra o uso de **boas práticas modernas de desenvolvimento Android**, com foco em escalabilidade, manutenção e performance.
 
--   **Core**
-    -   **Stack**: 100% [Kotlin](https://kotlinlang.org/)
-    -   **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) para uma UI totalmente declarativa.
-    -   **Programação Assíncrona**: [Kotlin Coroutines & Flow](https://kotlinlang.org/docs/coroutines-guide.html) para gerenciar threads em segundo plano e lidar com fluxos de dados.
+### Core
+- **Linguagem**: 100% [Kotlin](https://kotlinlang.org/)
+- **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose)
+- **Programação Assíncrona**: [Kotlin Coroutines & Flow](https://kotlinlang.org/docs/coroutines-guide.html)
 
--   **Arquitetura**
-    -   **Padrão**: MVVM (Model-View-ViewModel) para separar a UI da lógica de negócios.
-    -   **Injeção de Dependência**: [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) para gerenciar dependências e criar uma estrutura escalável.
-    -   **Navegação**: [Jetpack Navigation para Compose](https://developer.android.com/jetpack/compose/navigation) para gerenciar toda a navegação no app.
+### Arquitetura
+- **Padrão**: MVVM (Model-View-ViewModel)
+- **Injeção de Dependência**: [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
+- **Navegação**: [Jetpack Navigation para Compose](https://developer.android.com/jetpack/compose/navigation)
 
--   **Dados**
-    -   **Persistência**: [Room Database](https://developer.android.com/training/data-storage/room) para armazenamento local e estruturado de dados com queries reativas.
-    -   **Preferências do Usuário**: [Jetpack DataStore](https://developer.android.com/topic/libraries/architecture/datastore) para salvar as configurações do usuário, como tema e moeda.
-    -   **Tarefas em Segundo Plano**: [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) para agendar tarefas confiáveis, como backups semanais.
+### Dados
+- **Persistência**: [Room Database](https://developer.android.com/training/data-storage/room)
+- **Preferências do Usuário**: [Jetpack DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
+- **Tarefas em Segundo Plano**: [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
+
+---
 
 ## Download
 
-Você pode baixar a versão instalável mais recente do aplicativo na página de [**Releases**](https://github.com/Gabrick75/FlowFinance/releases).
+Você pode baixar a versão instalável mais recente do aplicativo na página de  
+[**Releases**](https://github.com/Gabrick75/FlowFinance/releases).
+
+---
 
 ## Como Compilar
 
