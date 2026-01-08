@@ -143,8 +143,8 @@
     <string name="chart_save_failure">Error al guardar el gráfico.</string>
     <string name="chart_title_overview">Visión General</string>
     <string name="chart_title_salary">Salario</string>
-    <string name="chart_title_yield">Rendimentos</string>
-    <string name="chart_title_combined">Salario X Rendimentos</string>
+    <string name="chart_title_yield">Rendimientos</string>
+    <string name="chart_title_combined">Salario X Rendimientos</string>
     <string name="chart_title_category_line">Evolución por Categoría</string>
     <string name="chart_title_category_stacked">Acumulado por Categoría</string>
     <string name="chart_legend_title">Leyenda de Colores:</string>
@@ -214,7 +214,7 @@
     <string name="trends_pie_title">Participación por Categoría</string>
     <string name="trends_ranking_title">Ranking de Gastos</string>
     <string name="trends_tab_total">Total</string>
-    <string name="trends_tab_monthly">Mensual</string>
+    <string name="trends_tab_monthly">Mensal</string>
     <string name="trends_line_title">Tendencia Mensual</string>
     <string name="trends_stacked_title">Composición de Gastos</string>
     <string name="trends_show_sheet">Mostrar Planilla Detallada</string>
@@ -226,6 +226,7 @@
     <string name="trends_no_data_display">Sin datos para mostrar</string>
 
     <!-- Languages -->
+    <string name="lang_default">Predeterminado del sistema</string>
     <string name="lang_en">Inglés</string>
     <string name="lang_pt">Portugués (Brasil)</string>
     <string name="lang_es">Español</string>

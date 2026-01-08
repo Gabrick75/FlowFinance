@@ -226,6 +226,7 @@
     <string name="trends_no_data_display">No data to display</string>
 
     <!-- Languages -->
+    <string name="lang_default">System Default</string>
     <string name="lang_en">English</string>
     <string name="lang_pt">Portuguese (Brazil)</string>
     <string name="lang_es">Spanish</string>

@@ -50,9 +50,7 @@ fun UserProfileScreen(
     
     // Language options: Code -> Resource ID
     val languages = listOf(
-        "" to R.string.lang_en, // Empty string for default or "en" if we enforced it. But let's use explicit codes if we want to force switch.
-        // Actually, let's map codes to names.
-        // If we want system default, we might use empty string, but usually per-app language requires specific locales.
+        "" to R.string.lang_default,
         "en" to R.string.lang_en,
         "pt-BR" to R.string.lang_pt,
         "es" to R.string.lang_es
@@ -138,7 +136,7 @@ fun UserProfileScreen(
                         // Determine if selected.
                         // If selectedLanguage is empty or "en", we might consider "en" as default.
                         // Let's assume userData.language stores the code.
-                        val isSelected = if (selectedLanguage.isEmpty()) code == "en" else selectedLanguage == code
+                        val isSelected = selectedLanguage == code
                         
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

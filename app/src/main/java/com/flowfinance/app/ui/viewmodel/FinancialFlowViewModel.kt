@@ -27,7 +27,8 @@ data class MonthlyFinancialData(
     val monthlyYield: Double = 0.0,
     val accumulatedYield: Double = 0.0,
     val accumulatedBalance: Double = 0.0,
-    val totalWealth: Double = 0.0
+    val totalWealth: Double = 0.0,
+    val expensesByCategory: Map<String, Double> = emptyMap()
 )
 
 data class FinancialFlowUiState(
@@ -78,7 +79,6 @@ class FinancialFlowViewModel @Inject constructor(
                 YearMonth.from(it.transaction.date) == currentMonth 
             }
 
-            // "Salário" agora inclui todas as receitas, exceto "Rendimentos"
             val salary = monthTransactions
                 .filter { it.transaction.type == TransactionType.INCOME && !it.category.name.equals("Rendimentos", ignoreCase = true) }
                 .sumOf { it.transaction.amount }
@@ -92,6 +92,11 @@ class FinancialFlowViewModel @Inject constructor(
             val totalExpenseOfMonth = monthTransactions
                 .filter { it.transaction.type == TransactionType.EXPENSE }
                 .sumOf { it.transaction.amount }
+                
+            val expensesByCategory = monthTransactions
+                .filter { it.transaction.type == TransactionType.EXPENSE }
+                .groupBy { it.category.name }
+                .mapValues { entry -> entry.value.sumOf { it.transaction.amount } }
 
             runningAccumulatedYield += monthlyYield
             runningAccumulatedBalance += (totalIncomeOfMonth - totalExpenseOfMonth)
@@ -104,7 +109,8 @@ class FinancialFlowViewModel @Inject constructor(
                     monthlyYield = monthlyYield,
                     accumulatedYield = runningAccumulatedYield,
                     accumulatedBalance = runningAccumulatedBalance,
-                    totalWealth = runningTotalWealth
+                    totalWealth = runningTotalWealth,
+                    expensesByCategory = expensesByCategory
                 )
             )
 
@@ -118,7 +124,6 @@ class FinancialFlowViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val data = uiState.value.monthlyData
-                val currency = uiState.value.currency
                 
                 val fileName = "flowfinance_fluxo_${System.currentTimeMillis()}.csv"
                 val file = File(context.getExternalFilesDir(null), fileName)
