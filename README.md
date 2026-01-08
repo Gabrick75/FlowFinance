@@ -26,6 +26,10 @@ The app is built using **modern Android development practices**, featuring a **1
     <td><img src="docs/images/screenshot3.png" alt="Screenshot 3"></td>
     <td><img src="docs/images/screenshot4.png" alt="Screenshot 4"></td>
   </tr>
+  <tr>
+    <td><img src="docs/images/screenshot5.jpg" alt="Screenshot 3"></td>
+    <td><img src="docs/images/screenshot6.jpg" alt="Screenshot 4"></td>
+  </tr>
 </table>
 
 ---
