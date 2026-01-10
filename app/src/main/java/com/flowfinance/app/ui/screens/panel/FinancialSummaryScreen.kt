@@ -34,10 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.flowfinance.app.R
 import com.flowfinance.app.ui.viewmodel.FinancialSummaryViewModel
 import com.flowfinance.app.ui.viewmodel.SummaryData
 import com.flowfinance.app.util.formatCurrency
@@ -57,19 +59,19 @@ fun FinancialSummaryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Resumo Financeiro",
+                        stringResource(id = R.string.summary_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showInfoPopup = !showInfoPopup }) {
-                        Icon(Icons.Default.Info, contentDescription = "Informações")
+                        Icon(Icons.Default.Info, contentDescription = stringResource(id = R.string.summary_info_title))
                     }
                 }
             )
@@ -88,14 +90,14 @@ fun FinancialSummaryScreen(
                         .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    
+
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     item {
                         SummaryTableCard(
-                            title = "Total Atual (Desde o Início)",
+                            title = stringResource(id = R.string.summary_total_current),
                             data = uiState.totalSummary,
                             currency = uiState.currency
                         )
@@ -103,7 +105,7 @@ fun FinancialSummaryScreen(
 
                     item {
                         SummaryTableCard(
-                            title = "Total Anual (${uiState.currentYear})",
+                            title = stringResource(id = R.string.summary_total_annual, uiState.currentYear),
                             data = uiState.yearlySummary,
                             currency = uiState.currency
                         )
@@ -111,7 +113,7 @@ fun FinancialSummaryScreen(
 
                     item {
                         SummaryTableCard(
-                            title = "Mês Atual",
+                            title = stringResource(id = R.string.summary_current_month),
                             data = uiState.monthlySummary,
                             currency = uiState.currency
                         )
@@ -122,7 +124,7 @@ fun FinancialSummaryScreen(
                             onClick = onHistoryClick,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Ver Histórico Mensal")
+                            Text(stringResource(id = R.string.summary_view_history))
                         }
                     }
                 }
@@ -142,23 +144,23 @@ fun FinancialSummaryScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                "Entenda os Valores",
+                                stringResource(id = R.string.summary_info_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                "Valor Total: Montante geral disponível (receitas).",
+                                stringResource(id = R.string.summary_info_total),
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                "Gasto Total: Total de despesas realizadas.",
+                                stringResource(id = R.string.summary_info_spent),
                                 style = MaterialTheme.typography.bodySmall
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                "Não Gasto Total: Valor restante (Total - Gasto).",
+                                stringResource(id = R.string.summary_info_remaining),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
@@ -190,23 +192,23 @@ fun SummaryTableCard(
 
             // Header
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text("Categoria", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
-                Text("Porcentagem", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.8f))
-                Text("Valor", style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
+                Text(stringResource(id = R.string.summary_col_category), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f))
+                Text(stringResource(id = R.string.summary_col_percentage), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(0.8f))
+                Text(stringResource(id = R.string.summary_col_value), style = MaterialTheme.typography.labelMedium, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             // Rows
-            SummaryRow("Valor Total", 100.0, data.totalIncome, currency, Color.Unspecified)
+            SummaryRow(stringResource(id = R.string.summary_row_total), 100.0, data.totalIncome, currency, Color.Unspecified)
             SummaryRow(
-                "Gasto Total",
+                stringResource(id = R.string.summary_row_spent),
                 if (data.totalIncome > 0) (data.totalExpense / data.totalIncome) * 100 else 0.0,
                 -data.totalExpense, // Display as negative
                 currency,
                 Color.Red
             )
             SummaryRow(
-                "Não Gasto Total",
+                stringResource(id = R.string.summary_row_remaining),
                 if (data.totalIncome > 0) (data.remaining / data.totalIncome) * 100 else 0.0,
                 data.remaining,
                 currency,

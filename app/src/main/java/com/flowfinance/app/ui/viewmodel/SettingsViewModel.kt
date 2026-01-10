@@ -470,20 +470,22 @@ class SettingsViewModel @Inject constructor(
                      transactionRepository.insertTransaction(transaction)
                 }
                 
-                backupPayload.userData?.let {
-                    userPreferencesRepository.setUserName(it.userName)
-                    userPreferencesRepository.setCurrency(it.currency)
-                    userPreferencesRepository.setDarkTheme(it.isDarkTheme)
+                backupPayload.userData?.let {userData ->
+                    userPreferencesRepository.setUserName(userData.userName)
+                    userPreferencesRepository.setCurrency(userData.currency)
+                    userPreferencesRepository.setDarkTheme(userData.isDarkTheme)
                     userPreferencesRepository.setReminderSettings(
-                        it.reminderHour,
-                        it.reminderMinute,
-                        it.reminderIntervalDays,
-                        it.isReminderEnabled
+                        userData.reminderHour,
+                        userData.reminderMinute,
+                        userData.reminderIntervalDays,
+                        userData.isReminderEnabled
                     )
-                    userPreferencesRepository.setLanguage(it.language)
                     
-                    val localeList = if (it.language.isNotEmpty()) {
-                        LocaleListCompat.forLanguageTags(it.language)
+                    val language = userData.language ?: ""
+                    userPreferencesRepository.setLanguage(language)
+                    
+                    val localeList = if (language.isNotEmpty()) {
+                        LocaleListCompat.forLanguageTags(language)
                     } else {
                         LocaleListCompat.getEmptyLocaleList()
                     }
