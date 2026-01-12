@@ -150,6 +150,11 @@
     <string name="chart_legend_title">Legend Colors:</string>
     <string name="chart_info_title">Legend Information</string>
     <string name="chart_categories_title">Categories:</string>
+    <string name="legend_info_salary">Income (excluding Investment Yields).</string>
+    <string name="legend_info_yield_monthly">Investment earnings for the month.</string>
+    <string name="legend_info_yield_acc">Sum of all investment earnings.</string>
+    <string name="legend_info_balance_acc">Accumulated difference between income and expenses.</string>
+    <string name="legend_info_wealth">Sum of all income.</string>
     
     <!-- Sheet Screen -->
     <string name="sheet_title">Detailed Sheet</string>

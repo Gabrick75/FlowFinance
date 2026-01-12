@@ -513,35 +513,25 @@ private fun LegendInfoPopup(chartType: String, onDismissRequest: () -> Unit) {
 
 @Composable
 private fun getLegendExplanations(chartType: String): Map<String, String> {
-    // Note: Since this is composable function returning a map, we can use stringResource.
-    // However, map keys are strings here. 
-    // Let's manually construct the map with string resources.
-    
     return when (chartType) {
         "overview" -> mapOf(
-            stringResource(R.string.sheet_col_salary) to stringResource(R.string.summary_info_total), // Reusing existing or need new strings?
-            // Let's stick to what was hardcoded if we don't have exact matches, or add new strings.
-            // But for now, let's keep hardcoded strings in getLegendExplanations OR better, create a composable way to render it directly without map return.
-            // Or just fetch strings here.
-            
-             // "Salário" to "Receitas (exceto Rendimentos)."
-             stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos).",
-             stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
-             stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos.",
-             stringResource(R.string.sheet_col_balance_acc) to "Diferença entre receitas e despesas acumulada.",
-             stringResource(R.string.sheet_col_wealth) to "Soma de todas as receitas."
+             stringResource(R.string.sheet_col_salary) to stringResource(R.string.legend_info_salary),
+             stringResource(R.string.sheet_col_yield_monthly) to stringResource(R.string.legend_info_yield_monthly),
+             stringResource(R.string.sheet_col_yield_acc) to stringResource(R.string.legend_info_yield_acc),
+             stringResource(R.string.sheet_col_balance_acc) to stringResource(R.string.legend_info_balance_acc),
+             stringResource(R.string.sheet_col_wealth) to stringResource(R.string.legend_info_wealth)
         )
         "salary" -> mapOf(
-            stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos)."
+            stringResource(R.string.sheet_col_salary) to stringResource(R.string.legend_info_salary)
         )
         "yield" -> mapOf(
-            stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
-            stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos."
+            stringResource(R.string.sheet_col_yield_monthly) to stringResource(R.string.legend_info_yield_monthly),
+            stringResource(R.string.sheet_col_yield_acc) to stringResource(R.string.legend_info_yield_acc)
         )
         "combined" -> mapOf(
-             stringResource(R.string.sheet_col_salary) to "Receitas (exceto Rendimentos).",
-             stringResource(R.string.sheet_col_yield_monthly) to "Ganhos de investimentos no mês.",
-             stringResource(R.string.sheet_col_yield_acc) to "Soma de todos os ganhos de investimentos."
+             stringResource(R.string.sheet_col_salary) to stringResource(R.string.legend_info_salary),
+             stringResource(R.string.sheet_col_yield_monthly) to stringResource(R.string.legend_info_yield_monthly),
+             stringResource(R.string.sheet_col_yield_acc) to stringResource(R.string.legend_info_yield_acc)
         )
         else -> emptyMap()
     }

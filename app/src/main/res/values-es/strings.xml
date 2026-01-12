@@ -150,6 +150,11 @@
     <string name="chart_legend_title">Leyenda de Colores:</string>
     <string name="chart_info_title">Información</string>
     <string name="chart_categories_title">Categorías:</string>
+    <string name="legend_info_salary">Ingresos (excluyendo Rendimientos de Inversiones).</string>
+    <string name="legend_info_yield_monthly">Ganancias de inversiones en el mes.</string>
+    <string name="legend_info_yield_acc">Suma de todas las ganancias de inversiones.</string>
+    <string name="legend_info_balance_acc">Diferencia acumulada entre ingresos y gastos.</string>
+    <string name="legend_info_wealth">Suma de todos los ingresos.</string>
     
     <!-- Sheet Screen -->
     <string name="sheet_title">Planilla Detallada</string>
@@ -214,7 +219,7 @@
     <string name="trends_pie_title">Participación por Categoría</string>
     <string name="trends_ranking_title">Ranking de Gastos</string>
     <string name="trends_tab_total">Total</string>
-    <string name="trends_tab_monthly">Mensal</string>
+    <string name="trends_tab_monthly">Mensual</string>
     <string name="trends_line_title">Tendencia Mensual</string>
     <string name="trends_stacked_title">Composición de Gastos</string>
     <string name="trends_show_sheet">Mostrar Planilla Detallada</string>

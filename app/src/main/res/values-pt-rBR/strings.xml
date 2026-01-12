@@ -150,6 +150,11 @@
     <string name="chart_legend_title">Legenda de Cores:</string>
     <string name="chart_info_title">Informações</string>
     <string name="chart_categories_title">Categorias:</string>
+    <string name="legend_info_salary">Receitas (exceto Rendimentos de Investimentos).</string>
+    <string name="legend_info_yield_monthly">Ganhos de investimentos no mês.</string>
+    <string name="legend_info_yield_acc">Soma de todos os ganhos de investimentos.</string>
+    <string name="legend_info_balance_acc">Diferença acumulada entre receitas e despesas.</string>
+    <string name="legend_info_wealth">Soma de todas as receitas.</string>
     
     <!-- Sheet Screen -->
     <string name="sheet_title">Planilha Detalhada</string>
