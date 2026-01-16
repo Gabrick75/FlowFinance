@@ -37,7 +37,7 @@ O aplicativo é desenvolvido seguindo as **práticas modernas de desenvolvimento
 O FlowFinance foi criado para oferecer **controle total e visibilidade completa** sobre as finanças pessoais.  
 Ele permite o registro detalhado de receitas e despesas, categorização inteligente de transações e geração automática de insights financeiros relevantes.
 
-Com a chegada do **FlowFinance v2.0.0**, o aplicativo evolui para uma **plataforma completa de análise financeira**, incorporando painéis avançados, métricas de gastos, análises por categoria e resumos históricos detalhados.
+Com a chegada do **FlowFinance v2.0.1**, o aplicativo evolui para uma **plataforma completa de análise financeira**, incorporando painéis avançados, métricas de gastos, análises por categoria e resumos históricos detalhados.
 
 Toda a operação do sistema é baseada em uma **arquitetura totalmente reativa**, onde qualquer alteração nos dados financeiros é refletida instantaneamente na interface, gráficos e totais — sem necessidade de atualizações manuais.
 

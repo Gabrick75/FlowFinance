@@ -39,7 +39,7 @@ The app is built using **modern Android development practices**, featuring a **1
 FlowFinance was created to give users **full control and visibility over their personal finances**.  
 It allows detailed tracking of income and expenses, categorization of transactions, and automatic generation of meaningful financial insights.
 
-With the introduction of **FlowFinance v2.0.0**, the app evolves into a **complete financial analysis platform**, offering advanced dashboards, trend analysis, spending metrics, and historical summaries.
+With the introduction of **FlowFinance v2.0.1**, the app evolves into a **complete financial analysis platform**, offering advanced dashboards, trend analysis, spending metrics, and historical summaries.
 
 At its core, FlowFinance relies on a **fully reactive architecture**, where every change in the database is instantly reflected in charts, summaries, and balances — no manual refresh required.
 

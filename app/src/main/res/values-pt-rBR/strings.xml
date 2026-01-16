@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">FlowFinance</string>
-    <string name="app_version_name">2.0.0</string>
+    <string name="app_version_name">2.0.1</string>
     
     <!-- Navigation / Screens -->
     <string name="nav_home">Início</string>
