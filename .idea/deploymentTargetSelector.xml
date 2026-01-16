@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
+<project version="5">
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-01-16T13:23:26.843014253Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=0074545453" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
