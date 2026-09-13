@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Room entities are populated via generated DAO code; keep their fields
+# intact so column mapping and Gson (de)serialization stay correct.
+-keep class com.flowfinance.app.data.local.entity.** { <fields>; }
+
+# Backup payload/model classes are (de)serialized with Gson via @SerializedName.
+-keep class com.flowfinance.app.data.local.model.** { <fields>; }
+-keep class com.flowfinance.app.data.preferences.UserData { <fields>; }
+
+# Gson needs generic type info and annotations preserved at runtime.
+-keepattributes Signature, *Annotation*
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken

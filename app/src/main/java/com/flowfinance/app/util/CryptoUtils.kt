@@ -74,4 +74,47 @@ object CryptoUtils {
         val tmp = factory.generateSecret(spec)
         return SecretKeySpec(tmp.encoded, "AES")
     }
+
+    private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
+    private const val KEYSTORE_KEY_ALIAS = "flowfinance_backup_key"
+
+    /**
+     * Transparent, device-bound encryption for data written by background components
+     * (e.g. WorkManager workers) that have no user-supplied password available.
+     * The key never leaves the Android Keystore and is not exportable.
+     */
+    fun encryptWithKeystoreKey(data: String): ByteArray {
+        val cipher = Cipher.getInstance(ALGORITHM)
+        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKeystoreKey())
+        val iv = cipher.iv
+        val encryptedData = cipher.doFinal(data.toByteArray(StandardCharsets.UTF_8))
+        return iv + encryptedData
+    }
+
+    fun decryptWithKeystoreKey(data: ByteArray): String {
+        val iv = data.copyOfRange(0, IV_LENGTH)
+        val encryptedData = data.copyOfRange(IV_LENGTH, data.size)
+
+        val cipher = Cipher.getInstance(ALGORITHM)
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKeystoreKey(), GCMParameterSpec(TAG_LENGTH, iv))
+        return String(cipher.doFinal(encryptedData), StandardCharsets.UTF_8)
+    }
+
+    private fun getOrCreateKeystoreKey(): SecretKey {
+        val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
+        (keyStore.getKey(KEYSTORE_KEY_ALIAS, null) as? SecretKey)?.let { return it }
+
+        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
+        keyGenerator.init(
+            KeyGenParameterSpec.Builder(
+                KEYSTORE_KEY_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(KEY_SIZE)
+                .build()
+        )
+        return keyGenerator.generateKey()
+    }
 }
