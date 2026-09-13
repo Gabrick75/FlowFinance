@@ -78,11 +78,7 @@ object CryptoUtils {
     private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
     private const val KEYSTORE_KEY_ALIAS = "flowfinance_backup_key"
 
-    /**
-     * Transparent, device-bound encryption for data written by background components
-     * (e.g. WorkManager workers) that have no user-supplied password available.
-     * The key never leaves the Android Keystore and is not exportable.
-     */
+    // Device-bound encryption (non-exportable Keystore key) for callers with no user password, e.g. WorkManager workers.
     fun encryptWithKeystoreKey(data: String): ByteArray {
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKeystoreKey())

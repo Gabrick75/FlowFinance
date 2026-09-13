@@ -26,7 +26,7 @@ class BackupWorker @AssistedInject constructor(
             val csvContent = buildString {
                 append("Id,Description,Amount,Date,Type,CategoryId\n")
                 transactions.forEach {
-                    append("${it.id},${it.description},${it.amount},${it.date},${it.type},${it.categoryId}\n")
+                    append("${it.id},${csvEscape(it.description)},${it.amount},${it.date},${it.type},${it.categoryId}\n")
                 }
             }
 
@@ -40,5 +40,11 @@ class BackupWorker @AssistedInject constructor(
             Log.e("BackupWorker", "Error creating backup", e)
             Result.failure()
         }
+    }
+
+    // Quotes the field and neutralizes leading =,+,-,@ to prevent CSV formula injection.
+    private fun csvEscape(value: String): String {
+        val sanitized = if (value.isNotEmpty() && value[0] in "=+-@") "'$value" else value
+        return "\"${sanitized.replace("\"", "\"\"")}\""
     }
 }
