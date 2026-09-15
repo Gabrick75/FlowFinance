@@ -3,9 +3,11 @@ package com.flowfinance.app.di
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.flowfinance.app.data.local.AppDatabase
 import com.flowfinance.app.data.local.dao.CategoryDao
+import com.flowfinance.app.data.local.dao.RecurringTransactionDao
 import com.flowfinance.app.data.local.dao.TransactionDao
 import com.flowfinance.app.data.local.entity.Category
 import dagger.Module
@@ -14,6 +16,31 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+
+private val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS `recurring_transactions` (
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `description` TEXT NOT NULL,
+                `amount` REAL NOT NULL,
+                `type` TEXT NOT NULL,
+                `categoryId` INTEGER NOT NULL,
+                `frequency` TEXT NOT NULL,
+                `startDate` TEXT NOT NULL,
+                `endDate` TEXT,
+                `occurrencesGenerated` INTEGER NOT NULL,
+                `isActive` INTEGER NOT NULL,
+                FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_recurring_transactions_categoryId` ON `recurring_transactions` (`categoryId`)"
+        )
+    }
+}
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,6 +56,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "flowfinance_db"
         )
+        .addMigrations(MIGRATION_1_2)
         .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -78,5 +106,10 @@ object DatabaseModule {
     @Provides
     fun provideCategoryDao(database: AppDatabase): CategoryDao {
         return database.categoryDao()
+    }
+
+    @Provides
+    fun provideRecurringTransactionDao(database: AppDatabase): RecurringTransactionDao {
+        return database.recurringTransactionDao()
     }
 }

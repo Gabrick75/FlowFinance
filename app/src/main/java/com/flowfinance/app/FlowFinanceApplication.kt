@@ -5,9 +5,12 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.flowfinance.app.worker.BackupWorker
+import com.flowfinance.app.worker.RecurringTransactionWorker
 import com.flowfinance.app.workers.NotificationWorker
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
@@ -29,6 +32,7 @@ class FlowFinanceApplication : Application(), Configuration.Provider {
         super.onCreate()
         setupBackupWorker()
         setupWeeklyReminder()
+        setupRecurringTransactionsWorker()
     }
 
     private fun setupBackupWorker() {
@@ -44,6 +48,24 @@ class FlowFinanceApplication : Application(), Configuration.Provider {
             "WeeklyBackup",
             ExistingPeriodicWorkPolicy.KEEP,
             backupRequest
+        )
+    }
+
+    private fun setupRecurringTransactionsWorker() {
+        val periodicRequest = PeriodicWorkRequestBuilder<RecurringTransactionWorker>(1, TimeUnit.DAYS).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "RecurringTransactionsCheck",
+            ExistingPeriodicWorkPolicy.KEEP,
+            periodicRequest
+        )
+
+        // Run once immediately so occurrences due since the last launch show up right away,
+        // instead of waiting for the periodic worker's next cycle.
+        val immediateRequest = OneTimeWorkRequestBuilder<RecurringTransactionWorker>().build()
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            RecurringTransactionWorker.IMMEDIATE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            immediateRequest
         )
     }
 

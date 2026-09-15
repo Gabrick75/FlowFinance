@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,26 +15,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,10 +59,9 @@ import com.flowfinance.app.R
 import com.flowfinance.app.data.local.entity.Category
 import com.flowfinance.app.ui.screens.planning.rememberCategoryIcon
 import com.flowfinance.app.ui.viewmodel.AddTransactionViewModel
+import com.flowfinance.app.util.RecurrenceFrequency
 import com.flowfinance.app.util.TransactionType
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -73,6 +78,12 @@ fun AddTransactionSheet(
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var isRecurring by remember { mutableStateOf(false) }
+    var selectedFrequency by remember { mutableStateOf(RecurrenceFrequency.MONTHLY) }
+    var frequencyMenuExpanded by remember { mutableStateOf(false) }
+    var hasEndDate by remember { mutableStateOf(false) }
+    var recurrenceEndDate by remember { mutableStateOf(LocalDate.now().plusMonths(1)) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
     val maxDescriptionLength = 35
 
     val categories by if (selectedType == TransactionType.INCOME) {
@@ -88,29 +99,19 @@ fun AddTransactionSheet(
     }
 
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
+        SimpleDatePickerDialog(
+            initialDate = selectedDate,
+            onDismiss = { showDatePicker = false },
+            onConfirm = { selectedDate = it; showDatePicker = false }
         )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).toLocalDate()
-                    }
-                    showDatePicker = false
-                }) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+    }
+
+    if (showEndDatePicker) {
+        SimpleDatePickerDialog(
+            initialDate = recurrenceEndDate,
+            onDismiss = { showEndDatePicker = false },
+            onConfirm = { recurrenceEndDate = it; showEndDatePicker = false }
+        )
     }
 
     ModalBottomSheet(
@@ -120,6 +121,7 @@ fun AddTransactionSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -180,25 +182,72 @@ fun AddTransactionSheet(
             }
 
             // Date Selector
-            val datePattern = stringResource(R.string.date_format)
-            OutlinedTextField(
-                value = selectedDate.format(DateTimeFormatter.ofPattern(datePattern, Locale.getDefault())),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.add_transaction_date_label)) },
-                trailingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+            DateField(
+                label = stringResource(R.string.add_transaction_date_label),
+                date = selectedDate,
+                onClick = { showDatePicker = true }
+            )
+
+            // Repeat Toggle
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                interactionSource = remember { MutableInteractionSource() }
-                    .also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    showDatePicker = true
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.add_transaction_repeat_label),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Switch(checked = isRecurring, onCheckedChange = { isRecurring = it })
+            }
+
+            if (isRecurring) {
+                ExposedDropdownMenuBox(
+                    expanded = frequencyMenuExpanded,
+                    onExpandedChange = { frequencyMenuExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = recurrenceFrequencyLabel(selectedFrequency),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.recurring_frequency_label)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = frequencyMenuExpanded) },
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = frequencyMenuExpanded,
+                        onDismissRequest = { frequencyMenuExpanded = false }
+                    ) {
+                        RecurrenceFrequency.values().forEach { frequency ->
+                            DropdownMenuItem(
+                                text = { Text(recurrenceFrequencyLabel(frequency)) },
+                                onClick = {
+                                    selectedFrequency = frequency
+                                    frequencyMenuExpanded = false
                                 }
-                            }
+                            )
                         }
                     }
-            )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(checked = hasEndDate, onCheckedChange = { hasEndDate = it })
+                    Text(stringResource(R.string.recurring_end_date_toggle))
+                }
+
+                if (hasEndDate) {
+                    DateField(
+                        label = stringResource(R.string.recurring_end_date_label),
+                        date = recurrenceEndDate,
+                        onClick = { showEndDatePicker = true }
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -212,7 +261,9 @@ fun AddTransactionSheet(
                             amount = amountDouble,
                             type = selectedType,
                             categoryId = selectedCategory!!.id,
-                            date = selectedDate
+                            date = selectedDate,
+                            recurrence = if (isRecurring) selectedFrequency else null,
+                            recurrenceEndDate = if (isRecurring && hasEndDate) recurrenceEndDate else null
                         )
                         onDismiss()
                     }
@@ -225,6 +276,44 @@ fun AddTransactionSheet(
             
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateField(
+    label: String,
+    date: LocalDate,
+    onClick: () -> Unit
+) {
+    val datePattern = stringResource(R.string.date_format)
+    OutlinedTextField(
+        value = date.format(DateTimeFormatter.ofPattern(datePattern, Locale.getDefault())),
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(label) },
+        trailingIcon = { Icon(Icons.Default.DateRange, contentDescription = null) },
+        modifier = Modifier.fillMaxWidth(),
+        interactionSource = remember { MutableInteractionSource() }
+            .also { interactionSource ->
+                LaunchedEffect(interactionSource) {
+                    interactionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            onClick()
+                        }
+                    }
+                }
+            }
+    )
+}
+
+@Composable
+fun recurrenceFrequencyLabel(frequency: RecurrenceFrequency): String {
+    return when (frequency) {
+        RecurrenceFrequency.DAILY -> stringResource(R.string.recurring_frequency_daily)
+        RecurrenceFrequency.WEEKLY -> stringResource(R.string.recurring_frequency_weekly)
+        RecurrenceFrequency.MONTHLY -> stringResource(R.string.recurring_frequency_monthly)
+        RecurrenceFrequency.YEARLY -> stringResource(R.string.recurring_frequency_yearly)
     }
 }
 

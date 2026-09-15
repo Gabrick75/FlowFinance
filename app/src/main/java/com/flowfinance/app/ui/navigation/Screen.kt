@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.TableChart
@@ -24,6 +25,7 @@ sealed class Screen(val route: String, val titleRes: Int, val icon: ImageVector)
     // Sub-screens (not in bottom bar)
     object UserProfile : Screen("user_profile", R.string.nav_profile, Icons.Default.Settings)
     object ManageBudgets : Screen("manage_budgets", R.string.nav_manage_budgets, Icons.Default.Edit)
+    object RecurringTransactions : Screen("recurring_transactions", R.string.nav_recurring_transactions, Icons.Default.Repeat)
     object FinancialFlow : Screen("financial_flow", R.string.nav_financial_flow, Icons.Default.Timeline)
     object Sheet : Screen("sheet", R.string.nav_sheet, Icons.Default.TableChart)
     object CategoryTrends : Screen("category_trends", R.string.nav_category_trends, Icons.Default.Timeline)

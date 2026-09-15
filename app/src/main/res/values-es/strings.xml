@@ -133,6 +133,7 @@
     <string name="add_transaction_category_label">Categoría</string>
     <string name="add_transaction_date_label">Fecha</string>
     <string name="add_transaction_save">Guardar</string>
+    <string name="add_transaction_repeat_label">Repetir</string>
     <string name="date_format">dd/MM/yyyy</string>
 
     <!-- FullScreenChart -->
@@ -240,4 +241,21 @@
     <string name="permission_denied_notification">Permiso de notificación denegado. Los recordatorios no funcionarán.</string>
     <string name="fab_new_transaction">Nueva Transacción</string>
     <string name="fab_manage_budgets">Gestionar Metas</string>
+
+    <!-- Recurring Transactions -->
+    <string name="nav_recurring_transactions">Transacciones Recurrentes</string>
+    <string name="recurring_transactions_title">Transacciones Recurrentes</string>
+    <string name="recurring_transactions_empty">Aún no hay transacciones recurrentes. Toca + para crear una.</string>
+    <string name="recurring_transactions_new">Nueva Transacción Recurrente</string>
+    <string name="recurring_transactions_edit">Editar Transacción Recurrente</string>
+    <string name="recurring_transactions_next_date">Próxima: %s</string>
+    <string name="recurring_transactions_paused">Pausada</string>
+    <string name="recurring_frequency_label">Frecuencia</string>
+    <string name="recurring_frequency_daily">Diaria</string>
+    <string name="recurring_frequency_weekly">Semanal</string>
+    <string name="recurring_frequency_monthly">Mensual</string>
+    <string name="recurring_frequency_yearly">Anual</string>
+    <string name="recurring_end_date_toggle">Definir fecha final</string>
+    <string name="recurring_end_date_label">Termina el</string>
+    <string name="planning_manage_recurring">Transacciones Recurrentes</string>
 </resources>

@@ -1,23 +1,12 @@
 package com.flowfinance.app.workers
 
-import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.flowfinance.app.MainActivity
-import com.flowfinance.app.R
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.data.repository.CategoryRepository
+import com.flowfinance.app.util.NotificationHelper
 import com.flowfinance.app.util.TransactionType
 import com.flowfinance.app.util.formatCurrency
 import dagger.assisted.Assisted
@@ -121,50 +110,7 @@ class NotificationWorker @AssistedInject constructor(
     }
 
     private fun showNotification(title: String, message: String, notificationId: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(
-                    applicationContext,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                // Cannot post notification without permission
-                return
-            }
-        }
-
-        val notificationManager = NotificationManagerCompat.from(applicationContext)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Lembretes e Alertas",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val systemNotificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            systemNotificationManager.createNotificationChannel(channel)
-        }
-
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        
-        val pendingIntent = PendingIntent.getActivity(
-            applicationContext, 
-            0, 
-            intent, 
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher_round) // Changed to use mipmap which exists
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(notificationId, notification)
+        NotificationHelper.show(applicationContext, title, message, notificationId)
     }
 
     companion object {
@@ -172,8 +118,7 @@ class NotificationWorker @AssistedInject constructor(
         const val TYPE_WEEKLY_REMINDER = "type_weekly_reminder"
         const val TYPE_BUDGET_CHECK = "type_budget_check"
         const val TYPE_TEST = "type_test"
-        
-        const val CHANNEL_ID = "flow_finance_channel"
+
         const val ID_WEEKLY_REMINDER = 1001
         const val ID_TEST_NOTIFICATION = 1002
     }

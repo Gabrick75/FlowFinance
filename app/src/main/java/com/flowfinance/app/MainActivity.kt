@@ -51,6 +51,7 @@ import com.flowfinance.app.ui.screens.panel.PanelScreen
 import com.flowfinance.app.ui.screens.panel.SheetScreen
 import com.flowfinance.app.ui.screens.planning.ManageBudgetsScreen
 import com.flowfinance.app.ui.screens.planning.PlanningScreen
+import com.flowfinance.app.ui.screens.planning.RecurringTransactionsScreen
 import com.flowfinance.app.ui.screens.settings.SettingsScreen
 import com.flowfinance.app.ui.screens.settings.UserProfileScreen
 import com.flowfinance.app.ui.screens.transactions.TransactionsScreen
@@ -100,6 +101,7 @@ class MainActivity : AppCompatActivity() {
                     bottomBar = {
                         if (currentRoute != Screen.UserProfile.route && 
                             currentRoute != Screen.ManageBudgets.route &&
+                            currentRoute != Screen.RecurringTransactions.route &&
                             currentRoute != Screen.FinancialFlow.route &&
                             currentRoute != Screen.Sheet.route &&
                             currentRoute != Screen.CategoryTrends.route &&
@@ -179,7 +181,12 @@ class MainActivity : AppCompatActivity() {
                                 TransactionsScreen()
                             }
                             composable(Screen.Planning.route) {
-                                PlanningScreen()
+                                PlanningScreen(
+                                    onManageRecurringClick = { navController.navigate(Screen.RecurringTransactions.route) }
+                                )
+                            }
+                            composable(Screen.RecurringTransactions.route) {
+                                RecurringTransactionsScreen(onBackClick = { navController.popBackStack() })
                             }
                             composable(Screen.Panel.route) {
                                 PanelScreen(

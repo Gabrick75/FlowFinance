@@ -3,13 +3,18 @@ package com.flowfinance.app.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.flowfinance.app.data.local.entity.Category
+import com.flowfinance.app.data.local.entity.RecurringTransaction
 import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.repository.CategoryRepository
+import com.flowfinance.app.data.repository.RecurringTransactionRepository
 import com.flowfinance.app.data.repository.TransactionRepository
+import com.flowfinance.app.util.RecurrenceFrequency
 import com.flowfinance.app.util.TransactionType
+import com.flowfinance.app.worker.RecurringTransactionWorker
 import com.flowfinance.app.workers.NotificationWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,6 +30,7 @@ import javax.inject.Inject
 class AddTransactionViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
+    private val recurringTransactionRepository: RecurringTransactionRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -47,9 +53,27 @@ class AddTransactionViewModel @Inject constructor(
         amount: Double,
         type: TransactionType,
         categoryId: Int,
-        date: LocalDate = LocalDate.now()
+        date: LocalDate = LocalDate.now(),
+        recurrence: RecurrenceFrequency? = null,
+        recurrenceEndDate: LocalDate? = null
     ) {
         viewModelScope.launch {
+            if (recurrence != null) {
+                recurringTransactionRepository.insertRecurringTransaction(
+                    RecurringTransaction(
+                        description = description,
+                        amount = amount,
+                        type = type,
+                        categoryId = categoryId,
+                        frequency = recurrence,
+                        startDate = date,
+                        endDate = recurrenceEndDate
+                    )
+                )
+                triggerRecurringTransactionsCheck()
+                return@launch
+            }
+
             val transaction = Transaction(
                 description = description,
                 amount = amount,
@@ -71,5 +95,14 @@ class AddTransactionViewModel @Inject constructor(
                 WorkManager.getInstance(context).enqueue(budgetCheckRequest)
             }
         }
+    }
+
+    private fun triggerRecurringTransactionsCheck() {
+        val request = OneTimeWorkRequestBuilder<RecurringTransactionWorker>().build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            RecurringTransactionWorker.IMMEDIATE_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
     }
 }

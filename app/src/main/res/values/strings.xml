@@ -133,6 +133,7 @@
     <string name="add_transaction_category_label">Category</string>
     <string name="add_transaction_date_label">Date</string>
     <string name="add_transaction_save">Save</string>
+    <string name="add_transaction_repeat_label">Repeat</string>
     <string name="date_format">dd/MM/yyyy</string>
 
     <!-- FullScreenChart -->
@@ -240,4 +241,21 @@
     <string name="permission_denied_notification">Notification permission denied. Reminders will not work.</string>
     <string name="fab_new_transaction">New Transaction</string>
     <string name="fab_manage_budgets">Manage Budgets</string>
+
+    <!-- Recurring Transactions -->
+    <string name="nav_recurring_transactions">Recurring Transactions</string>
+    <string name="recurring_transactions_title">Recurring Transactions</string>
+    <string name="recurring_transactions_empty">No recurring transactions yet. Tap + to create one.</string>
+    <string name="recurring_transactions_new">New Recurring Transaction</string>
+    <string name="recurring_transactions_edit">Edit Recurring Transaction</string>
+    <string name="recurring_transactions_next_date">Next: %s</string>
+    <string name="recurring_transactions_paused">Paused</string>
+    <string name="recurring_frequency_label">Frequency</string>
+    <string name="recurring_frequency_daily">Daily</string>
+    <string name="recurring_frequency_weekly">Weekly</string>
+    <string name="recurring_frequency_monthly">Monthly</string>
+    <string name="recurring_frequency_yearly">Yearly</string>
+    <string name="recurring_end_date_toggle">Set an end date</string>
+    <string name="recurring_end_date_label">Ends on</string>
+    <string name="planning_manage_recurring">Recurring Transactions</string>
 </resources>

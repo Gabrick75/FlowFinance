@@ -1,6 +1,7 @@
 package com.flowfinance.app.data.local.converters
 
 import androidx.room.TypeConverter
+import com.flowfinance.app.util.RecurrenceFrequency
 import com.flowfinance.app.util.TransactionType
 import java.time.LocalDate
 
@@ -23,5 +24,15 @@ class Converters {
     @TypeConverter
     fun transactionTypeToString(type: TransactionType): String {
         return type.name
+    }
+
+    @TypeConverter
+    fun fromRecurrenceFrequency(value: String): RecurrenceFrequency {
+        return RecurrenceFrequency.valueOf(value)
+    }
+
+    @TypeConverter
+    fun recurrenceFrequencyToString(frequency: RecurrenceFrequency): String {
+        return frequency.name
     }
 }
