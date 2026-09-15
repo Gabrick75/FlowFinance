@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.flowfinance.app.R
 import com.flowfinance.app.data.repository.TransactionRepository
 import com.flowfinance.app.data.repository.CategoryRepository
 import com.flowfinance.app.util.NotificationHelper
@@ -40,17 +41,17 @@ class NotificationWorker @AssistedInject constructor(
 
     private fun sendWeeklyReminder(): Result {
         showNotification(
-            title = "Hora de atualizar suas finanças!",
-            message = "Não se esqueça de lançar seus gastos da semana no FlowFinance.",
+            title = applicationContext.getString(R.string.notification_weekly_reminder_title),
+            message = applicationContext.getString(R.string.notification_weekly_reminder_message),
             notificationId = ID_WEEKLY_REMINDER
         )
         return Result.success()
     }
-    
+
     private fun sendTestNotification(): Result {
         showNotification(
-            title = "Teste de Notificação",
-            message = "Se você está vendo isso, as notificações do FlowFinance estão funcionando corretamente!",
+            title = applicationContext.getString(R.string.notification_test_title),
+            message = applicationContext.getString(R.string.notification_test_message),
             notificationId = ID_TEST_NOTIFICATION
         )
         return Result.success()
@@ -79,28 +80,32 @@ class NotificationWorker @AssistedInject constructor(
                 val percentage = (spent / budget) * 100
 
                 // Check thresholds: 50, 70, 90, 100
-                if (percentage >= 100) {
-                     showNotification(
-                        title = "Alerta de Orçamento: ${category.name}",
-                        message = "Você atingiu 100% da sua meta de ${formatCurrency(budget)}! Gasto: ${formatCurrency(spent)}",
-                        notificationId = category.id
-                    )
-                } else if (percentage >= 90) {
+                val threshold = when {
+                    percentage >= 100 -> 100
+                    percentage >= 90 -> 90
+                    percentage >= 70 -> 70
+                    percentage >= 50 -> 50
+                    else -> null
+                }
+
+                if (threshold != null) {
+                    val message = if (threshold == 100) {
+                        applicationContext.getString(
+                            R.string.notification_budget_alert_full,
+                            formatCurrency(budget),
+                            formatCurrency(spent)
+                        )
+                    } else {
+                        applicationContext.getString(
+                            R.string.notification_budget_alert_progress,
+                            threshold,
+                            formatCurrency(spent),
+                            formatCurrency(budget)
+                        )
+                    }
                     showNotification(
-                        title = "Alerta de Orçamento: ${category.name}",
-                        message = "Você atingiu 90% da sua meta. Gasto: ${formatCurrency(spent)} de ${formatCurrency(budget)}",
-                        notificationId = category.id
-                    )
-                } else if (percentage >= 70) {
-                    showNotification(
-                        title = "Alerta de Orçamento: ${category.name}",
-                        message = "Você atingiu 70% da sua meta. Gasto: ${formatCurrency(spent)} de ${formatCurrency(budget)}",
-                        notificationId = category.id
-                    )
-                } else if (percentage >= 50) {
-                    showNotification(
-                        title = "Alerta de Orçamento: ${category.name}",
-                        message = "Você atingiu 50% da sua meta. Gasto: ${formatCurrency(spent)} de ${formatCurrency(budget)}",
+                        title = applicationContext.getString(R.string.notification_budget_alert_title, category.name),
+                        message = message,
                         notificationId = category.id
                     )
                 }

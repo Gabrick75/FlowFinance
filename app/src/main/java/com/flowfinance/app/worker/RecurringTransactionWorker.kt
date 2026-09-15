@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.flowfinance.app.R
 import com.flowfinance.app.data.local.entity.RecurringTransaction
 import com.flowfinance.app.data.local.entity.Transaction
 import com.flowfinance.app.data.repository.RecurringTransactionRepository
@@ -35,8 +36,8 @@ class RecurringTransactionWorker @AssistedInject constructor(
             if (generatedCount > 0) {
                 NotificationHelper.show(
                     applicationContext,
-                    "Transações recorrentes lançadas",
-                    "$generatedCount lançamento(s) recorrente(s) foram criados automaticamente.",
+                    applicationContext.getString(R.string.notification_recurring_title),
+                    applicationContext.getString(R.string.notification_recurring_message, generatedCount),
                     ID_RECURRING_GENERATED
                 )
             }

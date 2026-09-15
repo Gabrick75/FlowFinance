@@ -258,4 +258,16 @@
     <string name="recurring_end_date_toggle">Set an end date</string>
     <string name="recurring_end_date_label">Ends on</string>
     <string name="planning_manage_recurring">Recurring Transactions</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Reminders and Alerts</string>
+    <string name="notification_weekly_reminder_title">Time to update your finances!</string>
+    <string name="notification_weekly_reminder_message">Don\'t forget to log this week\'s expenses in FlowFinance.</string>
+    <string name="notification_test_title">Notification Test</string>
+    <string name="notification_test_message">If you\'re seeing this, FlowFinance notifications are working correctly!</string>
+    <string name="notification_budget_alert_title">Budget Alert: %1$s</string>
+    <string name="notification_budget_alert_full">You\'ve reached 100%% of your %1$s goal! Spent: %2$s</string>
+    <string name="notification_budget_alert_progress">You\'ve reached %1$d%% of your goal. Spent: %2$s of %3$s</string>
+    <string name="notification_recurring_title">Recurring transactions posted</string>
+    <string name="notification_recurring_message">%1$d recurring transaction(s) were created automatically.</string>
 </resources>
