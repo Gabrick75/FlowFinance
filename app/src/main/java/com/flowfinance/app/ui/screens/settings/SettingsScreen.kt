@@ -573,6 +573,7 @@ fun shareFile(context: Context, filePath: String, isBackup: Boolean = false) {
     )
     
     val mimeType = when {
+        filePath.endsWith(".pdf") -> "application/pdf"
         filePath.endsWith(".xls") -> "application/vnd.ms-excel"
         filePath.endsWith(".flowbackup") -> "application/octet-stream"
         else -> "text/csv"

@@ -37,6 +37,7 @@
     <string name="prev_month_desc">Mes Anterior</string>
     <string name="next_month_desc">Mes Siguiente</string>
     <string name="date_header_format">dd \'de\' MMM, EEEE</string>
+    <string name="transactions_export_pdf">Exportar Informe PDF</string>
 
     <!-- Planning Screen -->
     <string name="planning_title">Metas por Categoría</string>
@@ -270,4 +271,20 @@
     <string name="notification_budget_alert_progress">Alcanzaste el %1$d%% de tu meta. Gastado: %2$s de %3$s</string>
     <string name="notification_recurring_title">Transacciones recurrentes generadas</string>
     <string name="notification_recurring_message">Se crearon automáticamente %1$d transacción(es) recurrente(s).</string>
+
+    <!-- PDF Report -->
+    <string name="pdf_report_subtitle">Informe Mensual — %1$s</string>
+    <string name="pdf_report_generated_at">Generado el %1$s</string>
+    <string name="pdf_report_no_transactions">No se registraron transacciones este mes.</string>
+    <string name="pdf_report_summary_income">Ingreso Total</string>
+    <string name="pdf_report_summary_expense">Gasto Total</string>
+    <string name="pdf_report_summary_balance">Saldo</string>
+    <string name="pdf_report_expenses_by_category">Gastos por Categoría</string>
+    <string name="pdf_report_income_vs_expense">Ingresos vs Gastos</string>
+    <string name="pdf_report_transactions_section">Transacciones del Mes</string>
+    <string name="pdf_report_col_date">Fecha</string>
+    <string name="pdf_report_col_description">Descripción</string>
+    <string name="pdf_report_col_category">Categoría</string>
+    <string name="pdf_report_col_type">Tipo</string>
+    <string name="pdf_report_col_value">Valor</string>
 </resources>

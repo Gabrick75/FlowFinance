@@ -37,6 +37,7 @@
     <string name="prev_month_desc">Previous Month</string>
     <string name="next_month_desc">Next Month</string>
     <string name="date_header_format">dd MMM, EEEE</string>
+    <string name="transactions_export_pdf">Export PDF Report</string>
 
     <!-- Planning Screen -->
     <string name="planning_title">Goals by Category</string>
@@ -270,4 +271,20 @@
     <string name="notification_budget_alert_progress">You\'ve reached %1$d%% of your goal. Spent: %2$s of %3$s</string>
     <string name="notification_recurring_title">Recurring transactions posted</string>
     <string name="notification_recurring_message">%1$d recurring transaction(s) were created automatically.</string>
+
+    <!-- PDF Report -->
+    <string name="pdf_report_subtitle">Monthly Report — %1$s</string>
+    <string name="pdf_report_generated_at">Generated on %1$s</string>
+    <string name="pdf_report_no_transactions">No transactions recorded this month.</string>
+    <string name="pdf_report_summary_income">Total Income</string>
+    <string name="pdf_report_summary_expense">Total Expense</string>
+    <string name="pdf_report_summary_balance">Balance</string>
+    <string name="pdf_report_expenses_by_category">Expenses by Category</string>
+    <string name="pdf_report_income_vs_expense">Income vs Expense</string>
+    <string name="pdf_report_transactions_section">Transactions This Month</string>
+    <string name="pdf_report_col_date">Date</string>
+    <string name="pdf_report_col_description">Description</string>
+    <string name="pdf_report_col_category">Category</string>
+    <string name="pdf_report_col_type">Type</string>
+    <string name="pdf_report_col_value">Value</string>
 </resources>

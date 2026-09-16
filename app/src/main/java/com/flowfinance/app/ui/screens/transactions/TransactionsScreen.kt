@@ -17,7 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import android.widget.Toast
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.flowfinance.app.R
 import com.flowfinance.app.data.local.model.TransactionWithCategory
 import com.flowfinance.app.ui.screens.dashboard.TransactionItem
+import com.flowfinance.app.ui.screens.settings.shareFile
 import com.flowfinance.app.util.formatCurrency
 import com.flowfinance.app.ui.viewmodel.TransactionsViewModel
 import com.flowfinance.app.util.TransactionType
@@ -58,6 +62,7 @@ fun TransactionsScreen(
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -66,11 +71,28 @@ fun TransactionsScreen(
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.transactions_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.transactions_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = {
+                        viewModel.exportMonthlyReport { filePath ->
+                            if (filePath != null) {
+                                shareFile(context, filePath)
+                            } else {
+                                Toast.makeText(context, "Erro ao gerar relatório.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }) {
+                        Icon(Icons.Default.PictureAsPdf, contentDescription = stringResource(R.string.transactions_export_pdf))
+                    }
+                }
                 Text(
                     text = stringResource(R.string.transactions_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
